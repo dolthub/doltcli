@@ -1,6 +1,4 @@
-
-class TagMixin():
-
+class TagMixin:
     def list_tag(self):
         pass
 

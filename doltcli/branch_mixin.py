@@ -1,6 +1,4 @@
-
 class BranchMixin:
-
     def create_branch(self):
         pass
 

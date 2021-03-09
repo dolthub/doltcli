@@ -1,3 +1,10 @@
+import csv
+import os
+import shutil
+import uuid
+
+from typing import Tuple, List
+
 import pytest
 from doltcli import (
     Dolt,
@@ -8,10 +15,6 @@ from doltcli import (
     read_rows,
     write_rows,
 )
-import shutil
-import uuid
-import os
-from typing import Tuple, List
 
 
 BASE_TEST_ROWS = [
@@ -29,7 +32,11 @@ def get_repo_path_tmp_path(path: str, subpath: str = None) -> Tuple[str, str]:
 @pytest.fixture
 def create_test_data(tmp_path) -> str:
     path = os.path.join(tmp_path, str(uuid.uuid4()))
-    pd.DataFrame(BASE_TEST_ROWS).to_csv(path, index_label=False)
+    with open(path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(list(BASE_TEST_ROWS[0].keys()))
+        for row in BASE_TEST_ROWS:
+            writer.writerow(list(row.values()))
     yield path
     os.remove(path)
 
@@ -44,13 +51,12 @@ def create_test_table(init_empty_test_repo, create_test_data) -> Tuple[Dolt, str
             PRIMARY KEY (`id`)
         );
     ''')
-    data = pd.read_csv(test_data_path).to_dict(orient="records")
-    print(data)
+    data = BASE_TEST_ROWS
     write_rows(repo, 'test_players', data, UPDATE, commit=False)
     yield repo, 'test_players'
 
     if 'test_players' in [table.name for table in repo.ls()]:
-        _execute(['table', 'rm', 'test_players'], repo.repo_dir())
+        _execute(['table', 'rm', 'test_players'], repo.repo_dir)
 
 
 def test_init(tmp_path):
@@ -245,8 +251,8 @@ def test_get_dirty_tables(create_test_table):
     message = 'Committing test data'
 
     # Some test data
-    initial = pd.DataFrame({'id': [1], 'name': ['Bianca'], 'role': ['Champion']}).to_dict(orient="records")
-    appended_row = pd.DataFrame({'name': ['Serena'], 'id': [2], 'role': ['Runner-up']}).to_dict(orient="records")
+    initial = [dict(id=1, name="Bianca", role="Champion")]
+    appended_row = [dict(id=1, name="Serena", role="Runner-up")]
 
     def _insert_row_helper(repo, table, row):
         write_rows(repo, table, row, UPDATE, commit=False)

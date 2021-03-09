@@ -1,6 +1,4 @@
-
-class TableMixin():
-
+class TableMixin:
     def import_table(self):
         pass
 

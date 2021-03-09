@@ -1,6 +1,4 @@
-
-class CredsMixin():
-
+class CredsMixin:
     def new_creds(self):
         pass
 

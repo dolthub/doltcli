@@ -1,6 +1,4 @@
-
-class ConfigMixin():
-
+class ConfigMixin:
     def list_configs(self):
         pass
 
@@ -12,4 +10,3 @@ class ConfigMixin():
 
     def get_config(self):
         pass
-

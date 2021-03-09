@@ -1,6 +1,4 @@
-
-class MiscMixin():
-
+class MiscMixin:
     def read_tables(self):
         pass
 

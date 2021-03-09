@@ -1,6 +1,4 @@
-
-class SchemaMixin():
-
+class SchemaMixin:
     def show_schema(self):
         pass
 
@@ -9,5 +7,3 @@ class SchemaMixin():
 
     def export_schema(self):
         pass
-
-

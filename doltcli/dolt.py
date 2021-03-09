@@ -198,6 +198,7 @@ class Remote(RemoteT):
     """
     Represents a remote, effectively a name and URL pair.
     """
+
     pass
 
 
@@ -555,12 +556,13 @@ class Dolt(DoltT):
         :param commit:
         :return:
         """
-        res = pd.DataFrame(
-            self.sql(
-                Commit.get_log_table_query(number=number, commit=commit),
-                result_format="csv",
-            )
-        ).to_dict("records")
+        # res = pd.DataFrame(
+        res = read_rows_sql(
+            self, sql=Commit.get_log_table_query(number=number, commit=commit)
+        )
+        # result_format="csv",
+        # )
+        # ).to_dict("records")
         commits = Commit.parse_dolt_log_table(res)
         return commits
 
