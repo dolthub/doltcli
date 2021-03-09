@@ -1,7 +1,7 @@
-from doltpy.cli import Dolt
 from typing import List
 import pytest
 from doltcli import (
+    Dolt,
     write_rows,
     CREATE,
     UPDATE,

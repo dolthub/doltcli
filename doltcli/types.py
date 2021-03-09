@@ -31,6 +31,47 @@ class CommitT:
         ...
 
 
+@dataclass
+class KeyPairT:
+    public_key: str
+    key_id: str
+    active: bool
+
+
+@dataclass
+class RemoteT:
+    name: Optional[str]
+    url: Optional[str]
+
+
+@dataclass
+class StatusT:
+    is_clean: bool
+    modified_tables: Dict[str, bool]
+    added_tables: Dict[str, bool]
+
+
+@dataclass
+class TableT:
+    name: str
+    root: Optional[str] = None
+    row_cnt: Optional[int] = None
+    system: bool = False
+
+
+### TODO ###
+
+class TagT:
+    name: str
+    ref: str
+    message: str
+
+@dataclass
+class DoltHubContextT:
+    name: Optional[str] = None
+    url: Optional[str] = None
+
+
 class DoltT:
     repo_dir: str
     print_output: bool = False
@@ -158,40 +199,3 @@ class DoltT:
 
     def ls(self, system: bool = False, all: bool = False) -> List[TableT]:
         ...
-
-
-@dataclass
-class KeyPairT:
-    public_key: str
-    key_id: str
-    active: bool
-
-
-@dataclass
-class RemoteT:
-    name: Optional[str]
-    url: Optional[str]
-
-
-@dataclass
-class StatusT:
-    is_clean: bool
-    modified_tables: Dict[str, bool]
-    added_tables: Dict[str, bool]
-
-
-@dataclass
-class TableT:
-    name: str
-    root: Optional[str] = None
-    row_cnt: Optional[int] = None
-    system: bool = False
-
-
-### TODO ###
-
-
-@dataclass
-class DoltHubContextT:
-    name: Optional[str] = None
-    url: Optional[str] = None

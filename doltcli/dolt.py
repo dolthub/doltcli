@@ -6,7 +6,6 @@ import os
 import tempfile
 from collections import OrderedDict
 from dataclasses import dataclass
-import pandas as pd  # type: ignore
 import datetime
 from subprocess import PIPE, Popen
 from typing import List, Dict, Tuple, Union, Optional
@@ -199,7 +198,6 @@ class Remote(RemoteT):
     """
     Represents a remote, effectively a name and URL pair.
     """
-
     pass
 
 

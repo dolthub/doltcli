@@ -9,7 +9,6 @@ from doltcli import (
     write_rows,
 )
 import shutil
-import pandas as pd
 import uuid
 import os
 from typing import Tuple, List

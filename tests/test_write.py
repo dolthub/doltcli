@@ -1,5 +1,4 @@
 from typing import List
-import pandas as pd
 import pytest
 
 from doltcli import (
