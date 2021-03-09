@@ -243,7 +243,7 @@ class DoltHubContext:
         pass
 
 
-class Dolt(DoltT):
+class Dolt(DoltT, BranchMixin):
     """
     This class wraps the Dolt command line interface, mimicking functionality exactly to the extent that is possible.
     Some commands simply do not translate to Python, such as `dolt sql` (with no arguments) since that command
@@ -557,12 +557,30 @@ class Dolt(DoltT):
         :return:
         """
         # res = pd.DataFrame(
-        res = read_rows_sql(
-            self, sql=Commit.get_log_table_query(number=number, commit=commit)
-        )
-        # result_format="csv",
-        # )
-        # ).to_dict("records")
+        sql = f"""
+            SELECT
+                dc.`commit_hash`,
+                GROUP_CONCAT(dca.`parent_hash`) as parents,
+                `committer`,
+                `email`,
+                `date`,
+                `message`
+            FROM
+                dolt_commits AS dc
+                LEFT OUTER JOIN dolt_commit_ancestors AS dca
+                    ON dc.commit_hash = dca.commit_hash
+            GROUP BY dc.`commit_hash`
+        """
+
+        if commit is not None:
+            sql += f"WHERE dc.`commit_hash`='{commit}'"
+
+        sql += f"\nORDER BY `date` DESC"
+
+        if number is not None:
+            sql += f"\nLIMIT {number}"
+
+        res = read_rows_sql(self, sql=sql)
         commits = Commit.parse_dolt_log_table(res)
         return commits
 
@@ -637,84 +655,6 @@ class Dolt(DoltT):
 
         args.append(table_name)
         self.execute(args)
-
-    def branch(
-        self,
-        branch_name: Optional[str] = None,
-        start_point: Optional[str] = None,
-        new_branch: Optional[str] = None,
-        force: bool = False,
-        delete: bool = False,
-        copy: bool = False,
-        move: bool = False,
-    ):
-        """
-        Checkout, create, delete, move, or copy, a branch. Only
-        :param branch_name:
-        :param start_point:
-        :param new_branch:
-        :param force:
-        :param delete:
-        :param copy:
-        :param move:
-        :return:
-        """
-        switch_count = [el for el in [delete, copy, move] if el]
-        if len(switch_count) > 1:
-            raise ValueError("At most one of delete, copy, move can be set to True")
-
-        if not any([branch_name, delete, copy, move]):
-            if force:
-                raise ValueError(
-                    "force is not valid without providing a new branch name, or copy, move, or delete being true"
-                )
-            return self._get_branches()
-
-        args = ["branch"]
-        if force:
-            args.append("--force")
-
-        def execute_wrapper(command_args: List[str]):
-            self.execute(command_args)
-            return self._get_branches()
-
-        if branch_name and not (delete or copy or move):
-            args.append(branch_name)
-            if start_point:
-                args.append(start_point)
-            return execute_wrapper(args)
-
-        if copy:
-            if not new_branch:
-                raise ValueError("must provide new_branch when copying a branch")
-            args.append("--copy")
-            if branch_name:
-                args.append(branch_name)
-            args.append(new_branch)
-            return execute_wrapper(args)
-
-        if delete:
-            if not branch_name:
-                raise ValueError("must provide branch_name when deleting")
-            args.extend(["--delete", branch_name])
-            return execute_wrapper(args)
-
-        if move:
-            if not new_branch:
-                raise ValueError("must provide new_branch when moving a branch")
-            args.append("--move")
-            if branch_name:
-                args.append(branch_name)
-            args.append(new_branch)
-            return execute_wrapper(args)
-
-        if branch_name:
-            args.append(branch_name)
-            if start_point:
-                args.append(start_point)
-            return execute_wrapper(args)
-
-        return self._get_branches()
 
     def _get_branches(self) -> Tuple[Branch, List[Branch]]:
         args = ["branch", "--list", "--verbose"]

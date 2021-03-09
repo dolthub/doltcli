@@ -45,7 +45,7 @@ jobs:
         run: poetry run mypy doltcli
       - name: Execute pytest
         run: |
-          poetry run pytest . --cov=doltcli --cov-report=term --cov-report xml
+          poetry run pytest --ignore doltcli/types.py . --cov=doltcli --cov-report=term --cov-report xml
       - uses: codecov/codecov-action@v1
         if: ${{ matrix.python-version }} == '3.9'
         with:
