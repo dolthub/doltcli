@@ -18,9 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Update Doltcli version
-        run: sed -i 's/version =.*/version = "'"$VERSION"'"/' "$FILE"
+        run: sed -i 's/version =.*/version = \"$VERSION\"/' "$FILE"
         env:
-          FILE: setup.py
+          FILE: pyproject.toml
           VERSION: ${{ github.event.inputs.version }}
       - uses: EndBug/add-and-commit@v7
         with:
