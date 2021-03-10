@@ -147,8 +147,7 @@ def test_merge_conflict(create_test_table):
     repo.merge('other', message_merge)
 
     commits = list(repo.log().values())
-    # TODO the last commmit ends up being message_three, the tip of branch "other"
-    head_of_master = commits[1]
+    head_of_master = commits[0]
 
     assert head_of_master.message == message_two
 

@@ -126,7 +126,7 @@ class Commit(CommitT):
 
     @classmethod
     def get_log_table_query(
-        cls, number: Optional[int] = None, commit: Optional[str] = None
+            cls, number: Optional[int] = None, commit: Optional[str] = None, head: Optional[str] = None,
     ):
         base = f"""
             SELECT
@@ -143,7 +143,13 @@ class Commit(CommitT):
         """
 
         if commit is not None:
-            base += f"WHERE dc.`commit_hash`='{commit}'"
+            base += f"\nWHERE dc.`commit_hash`='{commit}'"
+
+        if head is not None:
+            if commit is not None:
+                base += f"\nAND date <= (SELECT latest_commit_date from dolt_branches WHERE hash = '{head}' LIMIT 1)"
+            else:
+                base += f"\nWHERE date <= (SELECT latest_commit_date from dolt_branches WHERE hash = '{head}' LIMIT 1)"
 
         base += f"\nORDER BY `date` DESC"
 
@@ -556,13 +562,9 @@ class Dolt(DoltT):
         :param commit:
         :return:
         """
-        # res = pd.DataFrame(
         res = read_rows_sql(
-            self, sql=Commit.get_log_table_query(number=number, commit=commit)
+            self, sql=Commit.get_log_table_query(number=number, commit=commit, head=self.head)
         )
-        # result_format="csv",
-        # )
-        # ).to_dict("records")
         commits = Commit.parse_dolt_log_table(res)
         return commits
 
