@@ -49,11 +49,3 @@ jobs:
         run: ./scripts/release.sh
         env:
           PASSWORD: ${{ secrets.pypi_password }}
-      #- name: Build from source
-        #run: |
-          #python setup.py sdist
-      #- name: Publish Doltcli to PyPI
-        #uses: pypa/gh-action-pypi-publish@master
-        #with:
-          #user: DoltHub
-          #password: ${{ secrets.pypi_password }}
