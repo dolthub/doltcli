@@ -46,6 +46,10 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
       - name: Publish
-        run: sudo ./scripts/release.sh
+        run: |
+          poetry config http-basic.pypi $USERNAME $PASSWORD
+          poetry build
+          poetry publish -r doltcli
         env:
           PASSWORD: ${{ secrets.pypi_password }}
+          USERNAME: Dolthub
