@@ -11,7 +11,7 @@ def branch_defaults(f):
             f(args[0], init_args, **kwargs)
         else:
             f(args[0], init_args, *args[1:], **kwargs)
-        return args[0].get_branches()
+        return args[0].list_branches()
     return inner
 
 class BranchMixin:
@@ -45,7 +45,7 @@ class BranchMixin:
         return self.execute(args)
 
     @branch_defaults
-    def get_branches(self):
+    def list_branches(self):
         sql = f"""
             SELECT *
             FROM dolt_branches
