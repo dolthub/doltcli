@@ -59,7 +59,7 @@ jobs:
         run: |
           poetry config http-basic.pypi $USERNAME $PASSWORD
           poetry build
-          poetry publish -r doltcli
+          poetry publish
         env:
           PASSWORD: ${{ secrets.pypi_password }}
           USERNAME: Dolthub
