@@ -3,10 +3,12 @@ import datetime
 import json
 from typing import Dict, List, Optional, Union
 
+
 class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
             return str(obj)
+
 
 class BaseDataclass:
     def dict(self) -> Dict:

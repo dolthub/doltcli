@@ -125,7 +125,10 @@ class Commit(CommitT):
 
     @classmethod
     def get_log_table_query(
-            cls, number: Optional[int] = None, commit: Optional[str] = None, head: Optional[str] = None,
+        cls,
+        number: Optional[int] = None,
+        commit: Optional[str] = None,
+        head: Optional[str] = None,
     ):
         base = f"""
             SELECT
@@ -562,7 +565,10 @@ class Dolt(DoltT):
         :return:
         """
         res = read_rows_sql(
-            self, sql=Commit.get_log_table_query(number=number, commit=commit, head=self.head)
+            self,
+            sql=Commit.get_log_table_query(
+                number=number, commit=commit, head=self.head
+            ),
         )
         commits = Commit.parse_dolt_log_table(res)
         return commits
