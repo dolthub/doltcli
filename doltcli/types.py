@@ -2,20 +2,14 @@ from dataclasses import dataclass
 import datetime
 from typing import Dict, List, Optional, Union
 
-
 class BaseDataclass:
-    def dict(self) -> Dict:
-        ...
-
-    def json(self) -> str:
-        ...
-
+    def dict(self) -> Dict: ...
+    def json(self) -> str: ...
 
 @dataclass
 class BranchT:
     name: Optional[str]
     commit_id: Optional[str]
-
 
 @dataclass
 class CommitT:
@@ -26,10 +20,7 @@ class CommitT:
     message: Optional[str]
     parents: Optional[Union[List[str], str]]
     merge: bool = False
-
-    def add_merge_parent(self, parent: str) -> None:
-        ...
-
+    def add_merge_parent(self, parent: str) -> None: ...
 
 @dataclass
 class KeyPairT:
@@ -37,19 +28,16 @@ class KeyPairT:
     key_id: str
     active: bool
 
-
 @dataclass
 class RemoteT:
     name: Optional[str]
     url: Optional[str]
-
 
 @dataclass
 class StatusT:
     is_clean: bool
     modified_tables: Dict[str, bool]
     added_tables: Dict[str, bool]
-
 
 @dataclass
 class TableT:
@@ -58,64 +46,43 @@ class TableT:
     row_cnt: Optional[int] = None
     system: bool = False
 
-
 ### TODO ###
-
 
 class TagT:
     name: str
     ref: str
     message: str
 
-
 @dataclass
 class DoltHubContextT:
     name: Optional[str] = None
     url: Optional[str] = None
 
-
 class DoltT:
     repo_dir: str
     print_output: bool = False
-
     @staticmethod
-    def init(repo_dir: Optional[str] = ...) -> "DoltT":
-        ...
-
-    def execute(self, args: List[str], print_output: Optional[bool] = ...):
-        ...
-
-    def status(self) -> "StatusT":
-        ...
-
+    def init(repo_dir: Optional[str] = ...) -> "DoltT": ...
+    def execute(self, args: List[str], print_output: Optional[bool] = ...): ...
+    def status(self) -> "StatusT": ...
     @staticmethod
-    def version() -> str:
-        ...
-
-    def add(self, tables: Union[str, List[str]]) -> "StatusT":
-        ...
-
+    def version() -> str: ...
+    def add(self, tables: Union[str, List[str]]) -> "StatusT": ...
     def reset(
         self,
         tables: Union[str, List[str]],
         hard: bool = False,
         soft: bool = False,
-    ) -> None:
-        ...
-
+    ) -> None: ...
     def commit(
         self,
         message: Optional[str] = ...,
         allow_empty: bool = False,
         date: Optional[datetime.datetime] = ...,
-    ) -> None:
-        ...
-
+    ) -> None: ...
     def merge(
         self, branch: str, message: Optional[str] = ..., squash: bool = False
-    ) -> None:
-        ...
-
+    ) -> None: ...
     def sql(
         self,
         query: Optional[str] = None,
@@ -126,12 +93,8 @@ class DoltT:
         list_saved: bool = False,
         batch: bool = False,
         multi_db_dir: Optional[str] = None,
-    ) -> List:
-        ...
-
-    def log(self, number: Optional[int] = ..., commit: Optional[str] = ...) -> Dict:
-        ...
-
+    ) -> List: ...
+    def log(self, number: Optional[int] = ..., commit: Optional[str] = ...) -> Dict: ...
     def diff(
         self,
         commit: Optional[str] = ...,
@@ -143,12 +106,8 @@ class DoltT:
         sql: bool = False,
         where: Optional[str] = None,
         limit: Optional[int] = None,
-    ) -> None:
-        ...
-
-    def blame(self, table_name: str, rev: Optional[str] = None) -> None:
-        ...
-
+    ) -> None: ...
+    def blame(self, table_name: str, rev: Optional[str] = None) -> None: ...
     def branch(
         self,
         branch_name: Optional[str] = ...,
@@ -158,46 +117,33 @@ class DoltT:
         delete: bool = False,
         copy: bool = False,
         move: bool = False,
-    ) -> None:
-        ...
-
+    ) -> None: ...
     def checkout(
         self,
         branch: Optional[str] = ...,
         tables: Optional[Union[str, List[str]]] = ...,
         checkout_branch: bool = False,
         start_point: Optional[str] = ...,
-    ) -> None:
-        ...
-
+    ) -> None: ...
     def remote(
         self,
         add: bool = False,
         name: Optional[str] = ...,
         url: Optional[str] = ...,
         remove: bool = False,
-    ) -> None:
-        ...
-
-    def pull(self, remote: str = "origin") -> None:
-        ...
-
+    ) -> None: ...
+    def pull(self, remote: str = "origin") -> None: ...
     def fetch(
         self,
         remote: str = "origin",
         refspecs: Union[str, List[str]] = ...,
         force: bool = False,
-    ) -> None:
-        ...
-
+    ) -> None: ...
     @staticmethod
     def clone(
         remote_url: str,
         new_dir: Optional[str] = ...,
         remote: Optional[str] = ...,
         branch: Optional[str] = ...,
-    ) -> "DoltT":
-        ...
-
-    def ls(self, system: bool = False, all: bool = False) -> List[TableT]:
-        ...
+    ) -> "DoltT": ...
+    def ls(self, system: bool = False, all: bool = False) -> List[TableT]: ...
