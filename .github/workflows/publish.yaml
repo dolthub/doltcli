@@ -18,14 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Update Doltcli version
-        run: sed -i 's/version =.*/version = \"$VERSION\"/' "$FILE"
+        run: sed -i 's/version =.*/version = "'"$VERSION"'"/' "$FILE"
         env:
           FILE: pyproject.toml
           VERSION: ${{ github.event.inputs.version }}
       - uses: EndBug/add-and-commit@v7
         with:
           message: ${{ format('[ga-bump-release] update Doltcli version to {0}', github.event.inputs.version) }}
-          add: ${{ format('{0}/setup.py', github.workspace) }}
+          add: ${{ format('{0}/pyproject.toml', github.workspace) }}
           cwd: "."
       - name: Create Release
         id: create_release
