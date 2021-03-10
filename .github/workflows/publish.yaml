@@ -45,18 +45,15 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python_version }}
-      - name: Build from source
-        run: |
-          python setup.py sdist
-      - name: Publish Doltcli to PyPI
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: DoltHub
-          password: ${{ secrets.pypi_password }}
-      - name: Discord Notify
-        if: always()
-        uses: dolthub/ga-discord-notify@master
-        with:
-          job-status: ${{ job.status }}
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          notify-on-success: true
+      - name: Publish
+        run: ./scripts/release.sh
+        env:
+          PASSWORD: ${{ secrets.pypi_password }}
+      #- name: Build from source
+        #run: |
+          #python setup.py sdist
+      #- name: Publish Doltcli to PyPI
+        #uses: pypa/gh-action-pypi-publish@master
+        #with:
+          #user: DoltHub
+          #password: ${{ secrets.pypi_password }}

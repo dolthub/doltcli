@@ -5,7 +5,6 @@ import logging
 import os
 import tempfile
 from collections import OrderedDict
-from dataclasses import dataclass
 import datetime
 from subprocess import PIPE, Popen
 from typing import List, Dict, Tuple, Union, Optional
@@ -197,7 +196,7 @@ class Branch(BranchT):
     """
 
     def __str__(self):
-        return f"branch name: {self.name}, commit_id:{self.commit_id}"
+        return f"branch name: {self.name}, hash:{self.hash}"
 
 
 class Remote(RemoteT):

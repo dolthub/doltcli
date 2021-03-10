@@ -1,24 +1,33 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 import datetime
+import json
 from typing import Dict, List, Optional, Union
 
+class Encoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return str(obj)
 
 class BaseDataclass:
     def dict(self) -> Dict:
-        ...
+        return asdict(self)
 
     def json(self) -> str:
-        ...
+        return json.dumps(self.dict(), cls=Encoder)
 
 
 @dataclass
-class BranchT:
+class BranchT(BaseDataclass):
     name: Optional[str]
-    commit_id: Optional[str]
+    hash: Optional[str]
+    latest_committer: Optional[str] = None
+    latest_committer_email: Optional[str] = None
+    latest_commit_date: Optional[datetime.datetime] = None
+    latest_commit_message: Optional[str] = None
 
 
 @dataclass
-class CommitT:
+class CommitT(BaseDataclass):
     ref: Optional[str]
     timestamp: Optional[datetime.datetime]
     author: Optional[str]
@@ -32,48 +41,47 @@ class CommitT:
 
 
 @dataclass
-class KeyPairT:
+class KeyPairT(BaseDataclass):
     public_key: str
     key_id: str
     active: bool
 
 
 @dataclass
-class RemoteT:
+class RemoteT(BaseDataclass):
     name: Optional[str]
     url: Optional[str]
 
 
 @dataclass
-class StatusT:
+class StatusT(BaseDataclass):
     is_clean: bool
     modified_tables: Dict[str, bool]
     added_tables: Dict[str, bool]
 
 
 @dataclass
-class TableT:
+class TableT(BaseDataclass):
     name: str
     root: Optional[str] = None
     row_cnt: Optional[int] = None
     system: bool = False
 
 
-### TODO ###
-
-
-class TagT:
+@dataclass
+class TagT(BaseDataclass):
     name: str
     ref: str
     message: str
 
 
 @dataclass
-class DoltHubContextT:
+class DoltHubContextT(BaseDataclass):
     name: Optional[str] = None
     url: Optional[str] = None
 
 
+@dataclass
 class DoltT:
     repo_dir: str
     print_output: bool = False
