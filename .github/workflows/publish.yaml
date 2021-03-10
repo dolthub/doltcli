@@ -46,6 +46,6 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
       - name: Publish
-        run: ./scripts/release.sh
+        run: sudo ./scripts/release.sh
         env:
           PASSWORD: ${{ secrets.pypi_password }}
