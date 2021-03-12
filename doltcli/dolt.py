@@ -271,12 +271,14 @@ class Dolt(DoltT):
 
     @property
     def head(self):
-        head_var = f"@@{self.repo_name}_head"
-        head_commit = self.sql(f"select `{head_var}`", result_format="csv")[0].get(
-            head_var, None
-        )
+        #head_var = f"@@{self.repo_name}_head"
+        #head_commit = self.sql(f"select `{head_var}`", result_format="csv")[0].get(
+            #head_var, None
+        #)
+        head_hash = "HASHOF('HEAD')"
+        head_commit = self.sql(f"select {head_hash} as hash", result_format="csv")[0].get("hash", None)
         if not head_commit:
-            raise ValueError(f"Head not found: {head_var}")
+            raise ValueError(f"Head not found")
         return head_commit
 
     def execute(
