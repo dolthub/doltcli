@@ -768,9 +768,9 @@ class Dolt(DoltT):
         if branch:
             if checkout_branch:
                 args.append("-b")
-                if start_point:
-                    args.append(start_point)
             args.append(branch)
+            if start_point:
+                args.append(start_point)
 
         if tables:
             args.append(" ".join(to_list(tables)))

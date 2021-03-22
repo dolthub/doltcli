@@ -265,7 +265,7 @@ def detach_head(db, commit):
                 db.checkout(tmp_branch["name"])
         else:
             tmp_branch = f"detached_HEAD_at_{commit[:5]}"
-            db.checkout(branch=commit, start_point=tmp_branch, checkout_branch=True)
+            db.checkout(start_point=commit, branch=tmp_branch, checkout_branch=True)
             switched = True
         print("enter", commit, active_branch, db._get_branches())
         yield
