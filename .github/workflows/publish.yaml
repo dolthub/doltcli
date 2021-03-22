@@ -51,10 +51,10 @@ jobs:
           release_name: ${{ github.event.inputs.version }}
           draft: false
           prerelease: false
-      - name: Checkout release
-        run: |
-          git fetch --tags --all
-          git checkout tags/v${{ github.event.inputs.version }} -b v${{ github.event.inputs.version }}
+      #- name: Checkout release
+        #run: |
+          #git fetch --tags --all
+          #git checkout tags/v${{ github.event.inputs.version }} -b v${{ github.event.inputs.version }}
       - name: Publish
         run: |
           poetry config http-basic.pypi $USERNAME $PASSWORD
