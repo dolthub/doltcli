@@ -253,7 +253,10 @@ def detach_head(db, commit):
     active_branch, _ = db._get_branches()
     switched = False
     try:
-        commit_branches = db.sql(f"select name, hash from dolt_branches where hash = '{commit}'", result_format="csv")
+        commit_branches = db.sql(
+            f"select name, hash from dolt_branches where hash = '{commit}'",
+            result_format="csv",
+        )
         if len(commit_branches) > 0:
             tmp_branch = commit_branches[0]
             if active_branch.hash != tmp_branch["hash"]:
