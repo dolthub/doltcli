@@ -1,6 +1,7 @@
 import datetime
 import csv
 import os
+import shutil
 from typing import List, Tuple
 
 import pytest
@@ -64,6 +65,27 @@ def with_test_table(init_empty_test_repo):
     dolt.add(TEST_TABLE)
     dolt.commit('Created test table')
     return dolt
+
+
+@pytest.fixture(scope="function")
+def doltdb():
+    db_path = os.path.join(os.path.dirname(__file__), "foo")
+    try:
+        db = Dolt.init(db_path)
+        #df_v1 = pd.DataFrame({"A": [1, 1, 1], "B": [1, 1, 1]})
+        #write_pandas(dolt=db, table="bar", df=df_v1.reset_index(), primary_key=["index"], import_mode="create")
+        db.sql("create table  t1 (a bigint primary key, b bigint, c bigint)")
+        db.sql("insert into t1 values (1,1,1), (2,2,2)")
+        db.sql("select dolt_add('t1')")
+        db.sql("select dolt_commit('-m', 'initialize t1')")
+
+        db.sql("insert into t1 values (3,3,3)")
+        db.sql("select dolt_add('t1')")
+        db.sql("select dolt_commit('-m', 'edit t1')")
+        yield db_path
+    finally:
+        if os.path.exists(db_path):
+            shutil.rmtree(db_path)
 
 
 @pytest.fixture()

@@ -315,6 +315,11 @@ class Dolt(DoltT):
             try:
                 logger.info(f"Creating directory {repo_dir}")
                 os.mkdir(repo_dir)
+            except DoltException:
+                try:
+                    return Dolt(repo_dir)
+                except Exception as e:
+                    raise e
             except Exception as e:
                 raise e
 
@@ -726,21 +731,12 @@ class Dolt(DoltT):
         return self._get_branches()
 
     def _get_branches(self) -> Tuple[Branch, List[Branch]]:
-        args = ["branch", "--list", "--verbose"]
-        output = self.execute(args)
-        branches, active_branch = [], None
-        for line in output:
-            if not line:
-                break
-            elif line.startswith("*"):
-                split = line.lstrip()[1:].split()
-                branch, commit = split[0], split[1]
-                active_branch = Branch(branch, commit)
-                branches.append(active_branch)
-            else:
-                split = line.lstrip().split()
-                branch, commit = split[0], split[1]
-                branches.append(Branch(branch, commit))
+        dicts = read_rows_sql(self, sql="select * from dolt_branches")
+        branches = [Branch(**d) for d in dicts]
+
+        ab = read_rows_sql(self, "select active_branch()")[0]["ACTIVE_BRANCH()"]
+        active_branch = read_rows_sql(self, f"select * from dolt_branches where name = '{ab}'")
+        active_branch = Branch(**active_branch[0])
 
         if not active_branch:
             raise DoltException("Failed to set active branch")

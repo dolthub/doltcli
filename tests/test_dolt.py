@@ -7,6 +7,7 @@ from typing import Tuple, List
 
 import pytest
 from doltcli import (
+    detach_head,
     Dolt,
     DoltException,
     _execute,
@@ -455,3 +456,17 @@ def test_config_local(init_empty_test_repo):
     assert local_config['user.name'] == test_username and local_config['user.email'] == test_email
     assert global_config['user.name'] == current_global_config['user.name']
     assert global_config['user.email'] == current_global_config['user.email']
+
+
+def test_detached_head_cm(doltdb):
+    db = Dolt(doltdb)
+    commits = list(db.log().keys())
+
+    with detach_head(db, commits[1]):
+        sum1 = db.sql("select sum(a) as sum from t1", result_format="csv")[0]
+
+    with detach_head(db, commits[0]):
+        sum2 = db.sql("select sum(a) as sum from t1", result_format="csv")[0]
+
+    assert sum1["sum"] == "3"
+    assert sum2["sum"] == "6"

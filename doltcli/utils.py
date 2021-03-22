@@ -1,4 +1,5 @@
 from collections import defaultdict
+from contextlib import contextmanager
 import csv
 import datetime
 import logging
@@ -245,3 +246,32 @@ def rows_to_columns(rows: Iterable[dict]) -> Dict[str, list]:
 
 def to_list(value: Union[Any, List[Any]]) -> Any:
     return [value] if not isinstance(value, list) and value is not None else value
+
+
+@contextmanager
+def detach_head(db, commit):
+    active_branch, _ = db._get_branches()
+    switched = False
+    try:
+        commit_branches = db.sql(f"select name, hash from dolt_branches where hash = '{commit}'", result_format="csv")
+        if len(commit_branches) > 0:
+            tmp_branch = commit_branches[0]
+            print(active_branch.hash, tmp_branch["hash"])
+            if active_branch.hash != tmp_branch["hash"]:
+                swtiched = True
+                print(active_branch)
+                print(commit_branches)
+                print(tmp_branch)
+                db.checkout(tmp_branch["name"])
+        else:
+            tmp_branch = f"detached_HEAD_at_{commit[:5]}"
+            db.checkout(branch=commit, start_point=tmp_branch, checkout_branch=True)
+            switched = True
+        print("enter", commit, active_branch, db._get_branches())
+        yield
+    finally:
+        print(switched)
+        if switched:
+            db.checkout(active_branch.name)
+        print("exit", commit, active_branch, db._get_branches())
+        return
