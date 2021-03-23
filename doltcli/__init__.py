@@ -20,11 +20,12 @@ from .types import (
     TableT,
 )
 from .utils import (
-    columns_to_rows,
     CREATE,
     FORCE_CREATE,
     REPLACE,
     UPDATE,
+    columns_to_rows,
+    detach_head,
     read_columns,
     read_columns_sql,
     read_rows,

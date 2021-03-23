@@ -271,12 +271,12 @@ class Dolt(DoltT):
 
     @property
     def head(self):
-        head_var = f"@@{self.repo_name}_head"
-        head_commit = self.sql(f"select `{head_var}`", result_format="csv")[0].get(
-            head_var, None
-        )
+        head_hash = "HASHOF('HEAD')"
+        head_commit = self.sql(f"select {head_hash} as hash", result_format="csv")[
+            0
+        ].get("hash", None)
         if not head_commit:
-            raise ValueError(f"Head not found: {head_var}")
+            raise ValueError(f"Head not found")
         return head_commit
 
     def execute(
@@ -313,6 +313,11 @@ class Dolt(DoltT):
             try:
                 logger.info(f"Creating directory {repo_dir}")
                 os.mkdir(repo_dir)
+            except DoltException:
+                try:
+                    return Dolt(repo_dir)
+                except Exception as e:
+                    raise e
             except Exception as e:
                 raise e
 
@@ -724,21 +729,14 @@ class Dolt(DoltT):
         return self._get_branches()
 
     def _get_branches(self) -> Tuple[Branch, List[Branch]]:
-        args = ["branch", "--list", "--verbose"]
-        output = self.execute(args)
-        branches, active_branch = [], None
-        for line in output:
-            if not line:
-                break
-            elif line.startswith("*"):
-                split = line.lstrip()[1:].split()
-                branch, commit = split[0], split[1]
-                active_branch = Branch(branch, commit)
-                branches.append(active_branch)
-            else:
-                split = line.lstrip().split()
-                branch, commit = split[0], split[1]
-                branches.append(Branch(branch, commit))
+        dicts = read_rows_sql(self, sql="select * from dolt_branches")
+        branches = [Branch(**d) for d in dicts]
+
+        ab = read_rows_sql(self, "select active_branch()")[0]["ACTIVE_BRANCH()"]
+        ab_dicts = read_rows_sql(
+            self, f"select * from dolt_branches where name = '{ab}'"
+        )
+        active_branch = Branch(**ab_dicts[0])
 
         if not active_branch:
             raise DoltException("Failed to set active branch")
@@ -770,9 +768,9 @@ class Dolt(DoltT):
         if branch:
             if checkout_branch:
                 args.append("-b")
-                if start_point:
-                    args.append(start_point)
             args.append(branch)
+            if start_point:
+                args.append(start_point)
 
         if tables:
             args.append(" ".join(to_list(tables)))
