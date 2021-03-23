@@ -132,12 +132,12 @@ class Commit(CommitT):
     ):
         base = f"""
             SELECT
-                dc.`commit_hash`,
-                dca.`parent_hash`,
-                `committer`,
-                `email`,
-                `date`,
-                `message`
+                dc.`commit_hash` as commit_hash,
+                dca.`parent_hash` as parent_hash,
+                `committer` as committer,
+                `email` as email,
+                `date` as date,
+                `message` as message
             FROM
                 dolt_commits AS dc
                 LEFT OUTER JOIN dolt_commit_ancestors AS dca
@@ -731,11 +731,10 @@ class Dolt(DoltT):
     def _get_branches(self) -> Tuple[Branch, List[Branch]]:
         dicts = read_rows_sql(self, sql="select * from dolt_branches")
         branches = [Branch(**d) for d in dicts]
-
-        ab = read_rows_sql(self, "select active_branch()")[0]["ACTIVE_BRANCH()"]
         ab_dicts = read_rows_sql(
-            self, f"select * from dolt_branches where name = '{ab}'"
+            self, f"select * from dolt_branches where name = (select active_branch())"
         )
+        assert len(ab_dicts) == 1
         active_branch = Branch(**ab_dicts[0])
 
         if not active_branch:
