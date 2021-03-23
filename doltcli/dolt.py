@@ -731,7 +731,9 @@ class Dolt(DoltT):
     def _get_branches(self) -> Tuple[Branch, List[Branch]]:
         dicts = read_rows_sql(self, sql="select * from dolt_branches")
         branches = [Branch(**d) for d in dicts]
-        ab_dicts = read_rows_sql(self, f"select * from dolt_branches where name = (select active_branch())")
+        ab_dicts = read_rows_sql(
+            self, f"select * from dolt_branches where name = (select active_branch())"
+        )
         assert len(ab_dicts) == 1
         active_branch = Branch(**ab_dicts[0])
 
