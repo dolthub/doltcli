@@ -470,3 +470,12 @@ def test_detached_head_cm(doltdb):
 
     assert sum1["sum"] == "3"
     assert sum2["sum"] == "6"
+
+def test_new_dir_helper(tmp_path):
+    new_dir = os.path.join(tmp_path, "new_dir")
+
+    assert not os.path.exists(new_dir)
+
+    Dolt._new_dir_helper(new_dir)
+
+    assert not os.path.exists(new_dir)

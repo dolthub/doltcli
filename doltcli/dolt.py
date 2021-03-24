@@ -914,7 +914,7 @@ class Dolt(DoltT):
 
         args.append(new_dir)
 
-        _execute(args, cwd=new_dir)
+        _execute(args)
 
         return Dolt(new_dir)
 
@@ -931,8 +931,10 @@ class Dolt(DoltT):
                 raise DoltDirectoryException(f"Cannot create new directory {new_dir}")
             os.mkdir(new_dir)
             return new_dir
-        elif new_dir and os.path.exists(os.path.join(new_dir, ".dolt")):
-            raise DoltDirectoryException(f"{new_dir} is already a valid Dolt repo")
+        elif new_dir and os.path.exists(new_dir):
+            raise DoltDirectoryException(f"{new_dir} already exists")
+        else:
+            return new_dir
 
     @staticmethod
     def read_tables(
