@@ -393,12 +393,6 @@ def test_sql_csv(create_test_table):
     _verify_against_base_rows(result)
 
 
-def test_sql_tabular(create_test_table):
-    repo, test_table = create_test_table
-    result = repo.sql(query='SELECT * FROM `{table}`'.format(table=test_table), result_format='tabular')
-    _verify_against_base_rows(result)
-
-
 def _verify_against_base_rows(result: List[dict]):
     assert len(result) == len(BASE_TEST_ROWS)
 
