@@ -1,5 +1,4 @@
 import csv
-import io
 import json
 import logging
 import os
@@ -511,7 +510,7 @@ class Dolt(DoltT):
         list_saved: bool = False,
         batch: bool = False,
         multi_db_dir: Optional[str] = None,
-        result_parser: Callable[[io.StringIO], Any] = None
+        result_parser: Callable[[str], Any] = None
     ):
         """
         Execute a SQL query, using the options to dictate how it is executed, and where the output goes.
@@ -558,7 +557,7 @@ class Dolt(DoltT):
                 )
             args.extend(["--query", query])
 
-            if result_format in ["csv", "json"]:
+            if result_format in ["csv", "json"] and not result_parser:
                 args.extend(["--result-format", result_format])
                 output_file = self.execute(args, stdout_to_file=True)
                 return SQL_OUTPUT_PARSERS[result_format](open(output_file))
@@ -566,7 +565,7 @@ class Dolt(DoltT):
             else:
                 args.extend(["--result-format", "csv"])
                 output_file = self.execute(args, stdout_to_file=True)
-                return result_parser(open(output_file))
+                return result_parser(output_file)
 
         logger.warning("Must provide a value for result_format to get output back")
         if query:
