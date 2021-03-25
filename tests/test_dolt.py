@@ -479,3 +479,9 @@ def test_new_dir_helper(tmp_path):
     Dolt._new_dir_helper(new_dir)
 
     assert not os.path.exists(new_dir)
+
+def test_clone_new_dir(tmp_path):
+    target = os.path.join(tmp_path, "state_age")
+    Dolt.clone("max-hoffman/state-age", new_dir=target)
+    db = Dolt(target)
+    assert db.head != None
