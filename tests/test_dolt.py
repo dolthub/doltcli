@@ -169,6 +169,23 @@ def test_dolt_log(create_test_table):
     assert previous_commit.message == message_one
 
 
+def test_dolt_log_scope(create_test_table):
+    repo, test_table = create_test_table
+    message_one = 'Julianna, the very serious intellectual'
+    message_two = 'Added Stan the Man'
+    repo.add(test_table)
+    repo.commit('Julianna, the very serious intellectual')
+    repo.checkout("tmp_br", checkout_branch=True)
+    repo.sql('INSERT INTO `test_players` (`name`, `id`) VALUES ("Stan", 4)')
+    repo.add(test_table)
+    repo.commit(message_two)
+    repo.checkout("master")
+    commits = list(repo.log().values())
+    current_commit = commits[0]
+    previous_commit = commits[1]
+    assert current_commit.message == message_one
+
+
 def test_dolt_log_number(create_test_table):
     repo, test_table = create_test_table
     message_one = 'Julianna, the very serious intellectual'
