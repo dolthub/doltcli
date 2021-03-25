@@ -2,7 +2,7 @@ import datetime
 import csv
 import os
 import shutil
-from typing import List, Tuple
+from typing import Tuple
 
 import pytest
 
@@ -22,28 +22,13 @@ TEST_DATA_UPDATE = [
 
 TEST_DATA_FINAL = [TEST_DATA_INITIAL[0], TEST_DATA_INITIAL[2]] + TEST_DATA_UPDATE
 
+
 def get_repo_path_tmp_path(path: str, subpath: str = None) -> Tuple[str, str]:
     if subpath:
         return os.path.join(path, subpath), os.path.join(path, subpath, '.dolt')
     else:
         return path, os.path.join(path, '.dolt')
 
-
-def compare_rows_helper(expected: List[dict], actual: List[dict]):
-    assert len(expected) == len(actual), f'Unequal row counts: {len(expected)} != {len(actual)}'
-    errors = []
-    for l, r in zip(expected, actual):
-        l_cols, r_cols = set(l.keys()), set(r.keys())
-        assert l_cols == r_cols, f'Unequal sets of columns: {l_cols} != {r_cols}'
-        for col in l_cols:
-            l_val, r_val = l[col], r[col]
-            if col.startswith('date'):
-                l_val, r_val = l_val[:10], r_val[:10]
-            if l_val != r_val and not (l_val is None and r_val == ''):
-                errors.append(f'{col}: {l_val} != {r_val}')
-
-    error_str = '\n'.join(errors)
-    assert not errors, f'Failed with the following unequal columns:\n{error_str}'
 
 @pytest.fixture()
 def with_test_data_initial_file(tmp_path):
@@ -72,8 +57,6 @@ def doltdb():
     db_path = os.path.join(os.path.dirname(__file__), "foo")
     try:
         db = Dolt.init(db_path)
-        #df_v1 = pd.DataFrame({"A": [1, 1, 1], "B": [1, 1, 1]})
-        #write_pandas(dolt=db, table="bar", df=df_v1.reset_index(), primary_key=["index"], import_mode="create")
         db.sql("create table  t1 (a bigint primary key, b bigint, c bigint)")
         db.sql("insert into t1 values (1,1,1), (2,2,2)")
         db.sql("select dolt_add('t1')")
