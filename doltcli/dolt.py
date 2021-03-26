@@ -131,27 +131,21 @@ class Commit(CommitT):
         head: Optional[str] = None,
     ):
         base = f"""
-            SELECT
+            select
                 dc.`commit_hash` as commit_hash,
                 dca.`parent_hash` as parent_hash,
                 `committer` as committer,
                 `email` as email,
                 `date` as date,
                 `message` as message
-            FROM
-                dolt_commits AS dc
-                LEFT OUTER JOIN dolt_commit_ancestors AS dca
-                    ON dc.commit_hash = dca.commit_hash
+            from
+                dolt_log as dc
+                left outer join dolt_commit_ancestors as dca
+                    on dc.commit_hash = dca.commit_hash
         """
 
         if commit is not None:
             base += f"\nWHERE dc.`commit_hash`='{commit}'"
-
-        if head is not None:
-            if commit is not None:
-                base += f"\nAND date <= (SELECT latest_commit_date from dolt_branches WHERE hash = '{head}' LIMIT 1)"
-            else:
-                base += f"\nWHERE date <= (SELECT latest_commit_date from dolt_branches WHERE hash = '{head}' LIMIT 1)"
 
         base += f"\nORDER BY `date` DESC"
 
@@ -914,7 +908,7 @@ class Dolt(DoltT):
 
         args.append(new_dir)
 
-        _execute(args, cwd=new_dir)
+        _execute(args)
 
         return Dolt(new_dir)
 
@@ -931,8 +925,10 @@ class Dolt(DoltT):
                 raise DoltDirectoryException(f"Cannot create new directory {new_dir}")
             os.mkdir(new_dir)
             return new_dir
-        elif new_dir and os.path.exists(os.path.join(new_dir, ".dolt")):
-            raise DoltDirectoryException(f"{new_dir} is already a valid Dolt repo")
+        elif new_dir and os.path.exists(new_dir):
+            raise DoltDirectoryException(f"{new_dir} already exists")
+        else:
+            return new_dir
 
     @staticmethod
     def read_tables(
