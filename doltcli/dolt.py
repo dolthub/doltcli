@@ -11,8 +11,8 @@ from typing import List, Dict, Tuple, Union, Optional, Callable, Any
 logger = logging.getLogger(__name__)
 
 SQL_OUTPUT_PARSERS = {
-    'csv': lambda fh: list(csv.DictReader(fh)),
-    'json': lambda fh: json.load(fh)
+    "csv": lambda fh: list(csv.DictReader(fh)),
+    "json": lambda fh: json.load(fh),
 }
 
 from .types import (
@@ -34,6 +34,7 @@ from .utils import (
     write_file,
     write_rows,
 )
+
 
 class DoltException(Exception):
 
@@ -74,7 +75,7 @@ def _execute(args: List[str], cwd: Optional[str] = None, outfile: Optional[str] 
     _args = ["dolt"] + args
     str_args = " ".join(" ".join(args).split())
     logger.info(str_args)
-    _outfile = open(outfile, 'w') if outfile else PIPE
+    _outfile = open(outfile, "w") if outfile else PIPE
     proc = Popen(args=_args, cwd=cwd, stdout=_outfile, stderr=PIPE)
     out, err = proc.communicate()
     exitcode = proc.returncode
@@ -281,7 +282,10 @@ class Dolt(DoltT):
         return head_commit
 
     def execute(
-        self, args: List[str], print_output: Optional[bool] = None, stdout_to_file: bool = False
+        self,
+        args: List[str],
+        print_output: Optional[bool] = None,
+        stdout_to_file: bool = False,
     ) -> str:
         """
         Manages executing a dolt command, pass all commands, sub-commands, and arguments as they would appear on the
@@ -292,7 +296,7 @@ class Dolt(DoltT):
         :return:
         """
         if print_output and stdout_to_file:
-            raise ValueError('Cannot print output and send it to a file')
+            raise ValueError("Cannot print output and send it to a file")
 
         outfile = None
         if stdout_to_file:
@@ -461,7 +465,7 @@ class Dolt(DoltT):
             args.append("--squash")
 
         args.append(branch)
-        output = self.execute(args).split('\n')
+        output = self.execute(args).split("\n")
         merge_conflict_pos = 2
 
         if len(output) == 3 and "Fast-forward" in output[1]:
@@ -504,7 +508,7 @@ class Dolt(DoltT):
         list_saved: bool = False,
         batch: bool = False,
         multi_db_dir: Optional[str] = None,
-        result_parser: Callable[[str], Any] = None
+        result_parser: Callable[[str], Any] = None,
     ):
         """
         Execute a SQL query, using the options to dictate how it is executed, and where the output goes.
@@ -741,7 +745,9 @@ class Dolt(DoltT):
         )
 
         if len(ab_dicts) != 1:
-            raise ValueError('Ensure you have the latest version of Dolt installed, this is fixed as of 0.24.2')
+            raise ValueError(
+                "Ensure you have the latest version of Dolt installed, this is fixed as of 0.24.2"
+            )
 
         active_branch = Branch(**ab_dicts[0])
 
@@ -803,7 +809,7 @@ class Dolt(DoltT):
         args = ["remote", "--verbose"]
 
         if not (add or remove):
-            output = self.execute(args, print_output=False).split('\n')
+            output = self.execute(args, print_output=False).split("\n")
 
             remotes = []
             for line in output:
@@ -1210,7 +1216,7 @@ class Dolt(DoltT):
         if system:
             args.append("--system")
 
-        output = self.execute(args, print_output=False).split('\n')
+        output = self.execute(args, print_output=False).split("\n")
         tables: List[TableT] = []
         system_pos = None
 
