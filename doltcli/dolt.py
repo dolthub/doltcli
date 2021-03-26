@@ -552,7 +552,7 @@ class Dolt(DoltT):
                 args.extend(["--message", message])
 
         # do something with result format
-        if result_format:
+        if result_format or result_parser:
             if not query:
                 raise ValueError(
                     "Must provide a query in order to specify a result format"

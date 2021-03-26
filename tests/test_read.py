@@ -58,4 +58,3 @@ def test_read_columns(with_initial_test_data):
     compare_rows_helper(columns_to_rows(first_write), TEST_DATA_INITIAL)
     second_write = read_columns(dolt, TEST_TABLE, second_commit)
     compare_rows_helper(columns_to_rows(second_write), TEST_DATA_COMBINED)
-

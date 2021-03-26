@@ -1,8 +1,9 @@
-import csv
 import os
 import shutil
 import uuid
+import csv
 
+from tests.helpers import compare_rows_helper
 from typing import Tuple, List
 
 import pytest
@@ -19,9 +20,10 @@ from doltcli import (
 
 
 BASE_TEST_ROWS = [
-    {'name': 'Rafael',  'id': 1},
-    {'name': 'Novak', 'id': 2}
+    {'name': 'Rafael',  'id': '1'},
+    {'name': 'Novak', 'id': '2'}
 ]
+
 
 def get_repo_path_tmp_path(path: str, subpath: str = None) -> Tuple[str, str]:
     if subpath:
@@ -482,6 +484,7 @@ def test_detached_head_cm(doltdb):
     assert sum1["sum"] == "3"
     assert sum2["sum"] == "6"
 
+
 def test_new_dir_helper(tmp_path):
     new_dir = os.path.join(tmp_path, "new_dir")
 
@@ -491,8 +494,37 @@ def test_new_dir_helper(tmp_path):
 
     assert not os.path.exists(new_dir)
 
+
 def test_clone_new_dir(tmp_path):
     target = os.path.join(tmp_path, "state_age")
     Dolt.clone("max-hoffman/state-age", new_dir=target)
     db = Dolt(target)
-    assert db.head != None
+    assert db.head is not None
+
+
+def test_dolt_sql_csv(init_empty_test_repo):
+    dolt = init_empty_test_repo
+    write_rows(dolt, 'test_table', BASE_TEST_ROWS, commit=True)
+    result = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_format='csv')
+    assert BASE_TEST_ROWS == result
+
+
+def test_dolt_sql_json(init_empty_test_repo):
+    dolt = init_empty_test_repo
+    write_rows(dolt, 'test_table', BASE_TEST_ROWS, commit=True)
+    result = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_format='json')
+    # JSON return value preserves some type information, we cast back to a string
+    for row in result['rows']:
+        row['id'] = str(row['id'])
+    compare_rows_helper(BASE_TEST_ROWS, result['rows'])
+
+
+def test_dolt_sql_file(init_empty_test_repo):
+    dolt = init_empty_test_repo
+
+    def test_parser(path: str) -> List[dict]:
+        return list(csv.DictReader(open(path)))
+
+    write_rows(dolt, 'test_table', BASE_TEST_ROWS, commit=True)
+    result = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_parser=test_parser)
+    compare_rows_helper(BASE_TEST_ROWS, result)
