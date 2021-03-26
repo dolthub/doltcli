@@ -77,7 +77,7 @@ def _execute(args: List[str], cwd: Optional[str] = None, outfile: Optional[str] 
     logger.info(str_args)
     if outfile:
         with open(outfile, "w") as f:
-    #_outfile = open(outfile, "w") if outfile else PIPE
+            # _outfile = open(outfile, "w") if outfile else PIPE
             proc = Popen(args=_args, cwd=cwd, stdout=f, stderr=PIPE)
     else:
         proc = Popen(args=_args, cwd=cwd, stdout=PIPE, stderr=PIPE)
@@ -568,7 +568,9 @@ class Dolt(DoltT):
                 args.extend(["--result-format", "csv"])
                 output_file = self.execute(args, stdout_to_file=True)
                 if result_parser is None:
-                    raise ValueError(f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}")
+                    raise ValueError(
+                        f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}"
+                    )
                 return result_parser(output_file)
 
         logger.warning("Must provide a value for result_format to get output back")
