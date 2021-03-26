@@ -17,30 +17,32 @@ from .types import DoltT
 def read_columns(
     dolt: DoltT, table: str, as_of: Optional[str] = None
 ) -> Dict[str, list]:
-    return read_columns_sql(dolt, _get_read_table_asof_query(table, as_of))
+    return read_columns_sql(dolt, get_read_table_asof_query(table, as_of))
 
 
 def read_rows(dolt: DoltT, table: str, as_of: Optional[str] = None) -> List[dict]:
-    return read_rows_sql(dolt, _get_read_table_asof_query(table, as_of))
+    return read_rows_sql(dolt, get_read_table_asof_query(table, as_of))
 
 
-def _get_read_table_asof_query(table: str, as_of: Optional[str] = None) -> str:
+def get_read_table_asof_query(table: str, as_of: Optional[str] = None) -> str:
     base_query = f"SELECT * FROM `{table}`"
     return f'{base_query} AS OF "{as_of}"' if as_of else base_query
 
 
 def read_columns_sql(dolt: DoltT, sql: str) -> Dict[str, list]:
-    rows = _read_table_sql(dolt, sql)
+    rows = read_table_sql(dolt, sql)
     columns = rows_to_columns(rows)
     return columns
 
 
 def read_rows_sql(dolt: DoltT, sql: str) -> List[dict]:
-    return _read_table_sql(dolt, sql)
+    return read_table_sql(dolt, sql)
 
 
-def _read_table_sql(dolt: DoltT, sql: str) -> List[dict]:
-    return dolt.sql(sql, result_format="csv")
+def read_table_sql(
+    dolt: DoltT, sql: str, result_parser: Optional[Callable[[str], Any]] = None
+) -> List[dict]:
+    return dolt.sql(sql, result_format="csv", result_parser=result_parser)
 
 
 CREATE, FORCE_CREATE, REPLACE, UPDATE = "create", "force_create", "replace", "update"

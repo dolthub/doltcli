@@ -1,3 +1,5 @@
 dist/
 zip/
 .pycache/
+*__pycache__*
+.idea/

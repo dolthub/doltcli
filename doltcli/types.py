@@ -1,7 +1,8 @@
 from dataclasses import asdict, dataclass
 import datetime
 import json
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Callable, Any
+import io
 
 
 class Encoder(json.JSONEncoder):
@@ -136,6 +137,7 @@ class DoltT:
         list_saved: bool = False,
         batch: bool = False,
         multi_db_dir: Optional[str] = None,
+        result_parser: Optional[Callable[[str], Any]] = None,
     ) -> List:
         ...
 

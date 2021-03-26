@@ -1,5 +1,4 @@
 import csv
-import io
 import json
 import logging
 import os
@@ -7,9 +6,14 @@ import tempfile
 from collections import OrderedDict
 import datetime
 from subprocess import PIPE, Popen
-from typing import List, Dict, Tuple, Union, Optional
+from typing import List, Dict, Tuple, Union, Optional, Callable, Any
 
 logger = logging.getLogger(__name__)
+
+SQL_OUTPUT_PARSERS = {
+    "csv": lambda fh: list(csv.DictReader(fh)),
+    "json": lambda fh: json.load(fh),
+}
 
 from .types import (
     BranchT,
@@ -67,11 +71,16 @@ class DoltDirectoryException(Exception):
         self.message = message
 
 
-def _execute(args: List[str], cwd: Optional[str] = None):
+def _execute(args: List[str], cwd: Optional[str] = None, outfile: Optional[str] = None):
     _args = ["dolt"] + args
     str_args = " ".join(" ".join(args).split())
     logger.info(str_args)
-    proc = Popen(args=_args, cwd=cwd, stdout=PIPE, stderr=PIPE)
+    if outfile:
+        with open(outfile, "w") as f:
+            # _outfile = open(outfile, "w") if outfile else PIPE
+            proc = Popen(args=_args, cwd=cwd, stdout=f, stderr=PIPE)
+    else:
+        proc = Popen(args=_args, cwd=cwd, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
     exitcode = proc.returncode
 
@@ -79,7 +88,10 @@ def _execute(args: List[str], cwd: Optional[str] = None):
         logger.error(err)
         raise DoltException(str_args, out, err, exitcode)
 
-    return out.decode("utf-8")
+    if outfile:
+        return outfile
+    else:
+        return out.decode("utf-8")
 
 
 class Status(StatusT):
@@ -274,22 +286,36 @@ class Dolt(DoltT):
         return head_commit
 
     def execute(
-        self, args: List[str], print_output: Optional[bool] = None
-    ) -> List[str]:
+        self,
+        args: List[str],
+        print_output: Optional[bool] = None,
+        stdout_to_file: bool = False,
+    ) -> str:
         """
         Manages executing a dolt command, pass all commands, sub-commands, and arguments as they would appear on the
         command line.
         :param args:
         :param print_output:
+        :param stdout_to_file:
         :return:
         """
-        output = _execute(args, self.repo_dir)
+        if print_output and stdout_to_file:
+            raise ValueError("Cannot print output and send it to a file")
+
+        outfile = None
+        if stdout_to_file:
+            _, outfile = tempfile.mkstemp()
+
+        output = _execute(args, self.repo_dir, outfile=outfile)
 
         print_output = print_output or self._print_output
         if print_output:
             logger.info(output)
 
-        return output.split("\n")
+        if outfile:
+            return outfile
+        else:
+            return output
 
     @staticmethod
     def init(repo_dir: Optional[str] = None) -> "Dolt":
@@ -331,7 +357,7 @@ class Dolt(DoltT):
         new_tables: Dict[str, bool] = {}
         changes: Dict[str, bool] = {}
 
-        output = self.execute(["status"], print_output=False)
+        output = self.execute(["status"], print_output=False).split("\n")
 
         if "clean" in str("\n".join(output)):
             return Status(True, changes, new_tables)
@@ -443,7 +469,7 @@ class Dolt(DoltT):
             args.append("--squash")
 
         args.append(branch)
-        output = self.execute(args)
+        output = self.execute(args).split("\n")
         merge_conflict_pos = 2
 
         if len(output) == 3 and "Fast-forward" in output[1]:
@@ -486,6 +512,7 @@ class Dolt(DoltT):
         list_saved: bool = False,
         batch: bool = False,
         multi_db_dir: Optional[str] = None,
+        result_parser: Optional[Callable[[str], Any]] = None,
     ):
         """
         Execute a SQL query, using the options to dictate how it is executed, and where the output goes.
@@ -497,6 +524,7 @@ class Dolt(DoltT):
         :param list_saved: print out a list of saved queries
         :param batch: execute in batch mode, one statement after the other delimited by ;
         :param multi_db_dir: use a directory of Dolt repos, each one treated as a database
+        :param result_parser:
         :return:
         """
         args = ["sql"]
@@ -524,36 +552,31 @@ class Dolt(DoltT):
                 args.extend(["--message", message])
 
         # do something with result format
-        if result_format:
+        if result_format or result_parser:
             if not query:
                 raise ValueError(
                     "Must provide a query in order to specify a result format"
                 )
             args.extend(["--query", query])
-            if result_format in ["csv", "tabular"]:
-                args.extend(["--result-format", "csv"])
-                output = self.execute(args)
-                dict_reader = csv.DictReader(io.StringIO("\n".join(output)))
-                return list(dict_reader)
-            elif result_format == "json":
-                args.extend(["--result-format", "json"])
-                output = self.execute(args)
-                return json.load(io.StringIO("".join(output)))
+
+            if result_format in ["csv", "json"] and not result_parser:
+                args.extend(["--result-format", result_format])
+                output_file = self.execute(args, stdout_to_file=True)
+                return SQL_OUTPUT_PARSERS[result_format](open(output_file))
+
             else:
-                raise ValueError(
-                    f"{result_format} is not a valid value for result_format"
-                )
+                args.extend(["--result-format", "csv"])
+                output_file = self.execute(args, stdout_to_file=True)
+                if result_parser is None:
+                    raise ValueError(
+                        f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}"
+                    )
+                return result_parser(output_file)
 
         logger.warning("Must provide a value for result_format to get output back")
         if query:
             args.extend(["--query", query])
         self.execute(args)
-
-    def _parse_tabluar_output_to_dict(self, args: List[str]):
-        args.extend(["--result-format", "csv"])
-        output = self.execute(args)
-        dict_reader = csv.DictReader(io.StringIO("\n".join(output)))
-        return list(dict_reader)
 
     def log(self, number: Optional[int] = None, commit: Optional[str] = None) -> Dict:
         """
@@ -728,7 +751,12 @@ class Dolt(DoltT):
         ab_dicts = read_rows_sql(
             self, f"select * from dolt_branches where name = (select active_branch())"
         )
-        assert len(ab_dicts) == 1
+
+        if len(ab_dicts) != 1:
+            raise ValueError(
+                "Ensure you have the latest version of Dolt installed, this is fixed as of 0.24.2"
+            )
+
         active_branch = Branch(**ab_dicts[0])
 
         if not active_branch:
@@ -789,7 +817,7 @@ class Dolt(DoltT):
         args = ["remote", "--verbose"]
 
         if not (add or remove):
-            output = self.execute(args, print_output=False)
+            output = self.execute(args, print_output=False).split("\n")
 
             remotes = []
             for line in output:
@@ -1196,7 +1224,7 @@ class Dolt(DoltT):
         if system:
             args.append("--system")
 
-        output = self.execute(args, print_output=False)
+        output = self.execute(args, print_output=False).split("\n")
         tables: List[TableT] = []
         system_pos = None
 
