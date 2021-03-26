@@ -137,7 +137,7 @@ class DoltT:
         list_saved: bool = False,
         batch: bool = False,
         multi_db_dir: Optional[str] = None,
-        result_parser: Callable[[io.StringIO], Any] = None,
+        result_parser: Optional[Callable[[str], Any]] = None,
     ) -> List:
         ...
 

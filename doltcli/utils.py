@@ -40,7 +40,7 @@ def read_rows_sql(dolt: DoltT, sql: str) -> List[dict]:
 
 
 def read_table_sql(
-    dolt: DoltT, sql: str, result_parser: Callable[[io.StringIO], Any] = None
+    dolt: DoltT, sql: str, result_parser: Optional[Callable[[str], Any]] = None
 ) -> List[dict]:
     return dolt.sql(sql, result_format="csv", result_parser=result_parser)
 

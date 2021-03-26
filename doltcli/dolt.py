@@ -75,8 +75,12 @@ def _execute(args: List[str], cwd: Optional[str] = None, outfile: Optional[str] 
     _args = ["dolt"] + args
     str_args = " ".join(" ".join(args).split())
     logger.info(str_args)
-    _outfile = open(outfile, "w") if outfile else PIPE
-    proc = Popen(args=_args, cwd=cwd, stdout=_outfile, stderr=PIPE)
+    if outfile:
+        with open(outfile, "w") as f:
+    #_outfile = open(outfile, "w") if outfile else PIPE
+            proc = Popen(args=_args, cwd=cwd, stdout=f, stderr=PIPE)
+    else:
+        proc = Popen(args=_args, cwd=cwd, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
     exitcode = proc.returncode
 
@@ -508,7 +512,7 @@ class Dolt(DoltT):
         list_saved: bool = False,
         batch: bool = False,
         multi_db_dir: Optional[str] = None,
-        result_parser: Callable[[str], Any] = None,
+        result_parser: Optional[Callable[[str], Any]] = None,
     ):
         """
         Execute a SQL query, using the options to dictate how it is executed, and where the output goes.
@@ -563,6 +567,8 @@ class Dolt(DoltT):
             else:
                 args.extend(["--result-format", "csv"])
                 output_file = self.execute(args, stdout_to_file=True)
+                if result_parser is None:
+                    raise ValueError(f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}")
                 return result_parser(output_file)
 
         logger.warning("Must provide a value for result_format to get output back")
