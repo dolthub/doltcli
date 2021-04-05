@@ -1,0 +1,18 @@
+package:
+  name: doltcli
+  version: 0.1.4
+
+source:
+  git_url: https://github.com/dolthub/doltcli.git
+  git_rev: master
+  git_depth: 1
+
+requirements:
+  build:
+    - python
+  run:
+    - python
+    - dataclasses
+
+about:
+  home: "https://github.com/dolthub/doltcli"
