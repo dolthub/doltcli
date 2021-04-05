@@ -6,7 +6,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Update Doltcli version
-      run: sed -i 's/version: .*/version: "'"$VERSION"'"/' "$FILE"
+      run: sed -i 's/version\: .*/version\: "'"$VERSION"'"/' "$FILE"
       env:
         FILE: conda/meta.yaml
         VERSION: ${{ github.event.inputs.version }}
