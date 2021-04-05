@@ -1,5 +1,12 @@
 name: publish_conda
 
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'SemVer format release tag, i.e. 0.23.4'
+        required: true
+
 jobs:
   conda_publish:
     runs-on: ubuntu-latest
