@@ -15,4 +15,4 @@ requirements:
     - dataclasses
 
 about:
-  home: "https://github.com/dolthub/doltcli"
+  home: https://github.com/dolthub/doltcli
