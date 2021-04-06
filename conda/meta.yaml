@@ -2,6 +2,10 @@ package:
   name: doltcli
   version: 0.1.4
 
+buiLd:
+  script:
+    - PIP_NO_INDEX="False" $PYTHON -m pip install doltcli
+
 requirements:
   build:
     - python
