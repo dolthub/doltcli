@@ -1,6 +1,6 @@
 {% set name = "doltcli" %}
 {% set version = "0.1.4" %}
-{% set sha = "(stdin)= 510e83da39532814e2a53d4a1d1ba50c271b2bb785b5d282d9fbd29d9d3e54d2" %}
+{% set sha = "510e83da39532814e2a53d4a1d1ba50c271b2bb785b5d282d9fbd29d9d3e54d2" %}
 
 package:
   name: {{ name }}

@@ -15,7 +15,7 @@ jobs:
     - name: Update Doltcli version
       run: |
         sed -i 's/version = \S*/version = "'"$VERSION"'"/' "$FILE"
-        sed -i 's/sha = \S*/sha = "'"$(curl -sL https://github.com/dolthub/doltcli/archive/v${VERSION}.tar.gz | openssl sha256 | sed 's/^.* //')"'"/' "$FILE"
+        sed -i 's/sha = \S*/sha = "'"$(curl -sL https://pypi.io/packages/source/d/doltcli/doltcli-$VERSION.tar.gz | openssl sha256 | sed 's/^.* //')"'"/' "$FILE"
       env:
         FILE: conda/meta.yaml
         VERSION: ${{ github.event.inputs.version }}
