@@ -23,5 +23,3 @@ jobs:
       with:
         subDir: 'conda'
         AnacondaToken: ${{ secrets.CONDA_SECRET }}
-
-version = 12.0.4
