@@ -1,3 +1,5 @@
 #! /bin/bash
 
-pip install doltcli --no-deps
+set +x
+
+PIP_NO_INDEX="False" $PYTHON -m pip install doltcli
