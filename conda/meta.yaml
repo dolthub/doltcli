@@ -1,19 +1,28 @@
-{% set version = "0.1.2" %}
+{% set name = "doltcli" %}
+{% set version = "0.1.4" %}
+{% set sha = "d079246d34f84142a2a7783e6b4afbded82b2d8e39bc209710f948bce75e3c60" %}
 
 package:
-  name: doltcli
+  name: {{ name }}
   version: {{ version }}
 
-build:
-  script:
-    - PIP_NO_INDEX="False" $PYTHON -m pip install --no-deps doltcli=={{ version }}
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: {{ sha }}
 
+build:
+  noarch: python
 requirements:
   build:
-    - python {{ python }}
+    - python >=3.6
     - pip
+    - poetry
+  host:
+    - python >=3.6
+    - pip
+    - poetry
   run:
-    - python
+    - python >=3.6
     - dataclasses
 
 about:
