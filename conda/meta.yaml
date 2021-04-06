@@ -10,7 +10,7 @@ buiLd:
 
 requirements:
   build:
-    - python
+    - python {{ python }}
   run:
     - python
     - dataclasses
