@@ -1,6 +1,6 @@
 {% set name = "doltcli" %}
 {% set version = "0.1.4" %}
-{% set sha = "510e83da39532814e2a53d4a1d1ba50c271b2bb785b5d282d9fbd29d9d3e54d2" %}
+{% set sha = "d079246d34f84142a2a7783e6b4afbded82b2d8e39bc209710f948bce75e3c60" %}
 
 package:
   name: {{ name }}
@@ -10,8 +10,8 @@ source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
   sha256: {{ sha }}
 
-build:
-  noarch: python
+#build:
+  #noarch: python
 requirements:
   build:
     - python >=3.6
