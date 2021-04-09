@@ -273,7 +273,7 @@ class Dolt(DoltT):
 
     @property
     def repo_name(self):
-        return str(self.repo_dir).split("/")[-1].replace("-", "_")
+        return os.path.split(str(self.repo_dir))[-1].replace("-", "_")
 
     @property
     def head(self):
@@ -516,7 +516,7 @@ class Dolt(DoltT):
     ):
         """
         Execute a SQL query, using the options to dictate how it is executed, and where the output goes.
-        :param query: query to be executed
+         query: query to be executed
         :param result_format: the file format of the
         :param execute: execute a saved query, not valid with other parameters
         :param save: use the name provided to save the value of query
