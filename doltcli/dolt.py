@@ -516,7 +516,7 @@ class Dolt(DoltT):
     ):
         """
         Execute a SQL query, using the options to dictate how it is executed, and where the output goes.
-         query: query to be executed
+        :param query: query to be executed
         :param result_format: the file format of the
         :param execute: execute a saved query, not valid with other parameters
         :param save: use the name provided to save the value of query
