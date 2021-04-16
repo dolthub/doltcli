@@ -311,7 +311,7 @@ class Dolt(DoltT):
             try:
                 output = _execute(args, self.repo_dir, outfile=outfile)
             except DoltException as e:
-                pass
+                output = repr(e)
         else:
             output = _execute(args, self.repo_dir, outfile=outfile)
 
