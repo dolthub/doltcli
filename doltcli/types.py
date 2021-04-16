@@ -199,6 +199,7 @@ class DoltT:
         remote: str = "origin",
         refspecs: Union[str, List[str]] = ...,
         force: bool = False,
+        **kwargs: Any,
     ) -> None:
         ...
 
