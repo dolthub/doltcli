@@ -89,6 +89,16 @@ def test_head(create_test_table):
     assert list(repo.log().values())[0].ref == repo.head
 
 
+def test_working(doltdb):
+    db = Dolt(doltdb)
+    assert db.head != db.working
+
+
+def test_active_branch(create_test_table):
+    repo, test_table = create_test_table
+    assert "master" == repo.active_branch
+
+
 def test_merge_fast_forward(create_test_table):
     repo, test_table = create_test_table
     message_one = 'Base branch'

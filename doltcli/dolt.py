@@ -285,6 +285,24 @@ class Dolt(DoltT):
             raise ValueError(f"Head not found")
         return head_commit
 
+    @property
+    def working(self):
+        working = self.sql(
+            f"select @@{self.repo_name}_working as working", result_format="csv"
+        )[0].get("working", None)
+        if not working:
+            raise ValueError(f"Working head not found")
+        return working
+
+    @property
+    def active_branch(self):
+        active_branch = self.sql(f"select active_branch() as a", result_format="csv")[
+            0
+        ].get("a", None)
+        if not active_branch:
+            raise ValueError(f"Active branch not found")
+        return active_branch
+
     def execute(
         self,
         args: List[str],
