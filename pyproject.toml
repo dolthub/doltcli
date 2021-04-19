@@ -6,7 +6,7 @@ authors = ["Max Hoffman <max@dolthub.com>", "Oscar Batori <oscar@dolthub.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-dataclasses = {version = "0.1.5"
+dataclasses = {version = ">=0.6", markers = "python_version < \"3.7\""}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
