@@ -285,11 +285,30 @@ class Dolt(DoltT):
             raise ValueError(f"Head not found")
         return head_commit
 
+    @property
+    def working(self):
+        working = self.sql(
+            f"select @@{self.repo_name}_working as working", result_format="csv"
+        )[0].get("working", None)
+        if not working:
+            raise ValueError(f"Working head not found")
+        return working
+
+    @property
+    def active_branch(self):
+        active_branch = self.sql(f"select active_branch() as a", result_format="csv")[
+            0
+        ].get("a", None)
+        if not active_branch:
+            raise ValueError(f"Active branch not found")
+        return active_branch
+
     def execute(
         self,
         args: List[str],
         print_output: Optional[bool] = None,
         stdout_to_file: bool = False,
+        error: bool = True,
     ) -> str:
         """
         Manages executing a dolt command, pass all commands, sub-commands, and arguments as they would appear on the
@@ -306,7 +325,13 @@ class Dolt(DoltT):
         if stdout_to_file:
             _, outfile = tempfile.mkstemp()
 
-        output = _execute(args, self.repo_dir, outfile=outfile)
+        if not error:
+            try:
+                output = _execute(args, self.repo_dir, outfile=outfile)
+            except DoltException as e:
+                output = repr(e)
+        else:
+            output = _execute(args, self.repo_dir, outfile=outfile)
 
         print_output = print_output or self._print_output
         if print_output:
@@ -318,7 +343,7 @@ class Dolt(DoltT):
             return output
 
     @staticmethod
-    def init(repo_dir: Optional[str] = None) -> "Dolt":
+    def init(repo_dir: Optional[str] = None, error: bool = False) -> "Dolt":
         """
         Creates a new repository in the directory specified, creating the directory if `create_dir` is passed, and returns
         a `Dolt` object representing the newly created repo.
@@ -327,29 +352,21 @@ class Dolt(DoltT):
         if not repo_dir:
             repo_dir = os.getcwd()
 
-        if os.path.exists(repo_dir):
-            logger.info(f"Initializing Dolt repo in existing dir {repo_dir}")
-        else:
-            try:
-                logger.info(f"Creating directory {repo_dir}")
-                os.mkdir(repo_dir)
-            except DoltException:
-                try:
-                    return Dolt(repo_dir)
-                except Exception as e:
-                    raise e
-            except Exception as e:
-                raise e
+        os.makedirs(repo_dir, exist_ok=True)
+        logger.info(f"Initializing Dolt repo in {repo_dir}")
 
-        logger.info(f"Creating a new repo in {repo_dir}")
-        _execute(["init"], cwd=repo_dir)
+        try:
+            _execute(["init"], cwd=repo_dir)
+        except DoltException as e:
+            if not error:
+                return Dolt(repo_dir)
         return Dolt(repo_dir)
 
     @staticmethod
     def version():
         return _execute(["version"], cwd=os.getcwd()).split(" ")[2].strip()
 
-    def status(self) -> Status:
+    def status(self, **kwargs) -> Status:
         """
         Parses the status of this repository into a `Status` object.
         :return:
@@ -357,7 +374,7 @@ class Dolt(DoltT):
         new_tables: Dict[str, bool] = {}
         changes: Dict[str, bool] = {}
 
-        output = self.execute(["status"], print_output=False).split("\n")
+        output = self.execute(["status"], print_output=False, **kwargs).split("\n")
 
         if "clean" in str("\n".join(output)):
             return Status(True, changes, new_tables)
@@ -380,13 +397,13 @@ class Dolt(DoltT):
 
         return Status(False, changes, new_tables)
 
-    def add(self, tables: Union[str, List[str]]) -> Status:
+    def add(self, tables: Union[str, List[str]], **kwargs) -> Status:
         """
         Adds the table or list of tables in the working tree to staging.
         :param tables:
         :return:
         """
-        self.execute(["add"] + to_list(tables))
+        self.execute(["add"] + to_list(tables), **kwargs)
         return self.status()
 
     def reset(
@@ -394,6 +411,7 @@ class Dolt(DoltT):
         tables: Union[str, List[str]],
         hard: bool = False,
         soft: bool = False,
+        **kwargs,
     ):
         """
         Reset a table or set of tables that have changes in the working set to their value at the tip of the current
@@ -415,13 +433,14 @@ class Dolt(DoltT):
         if soft:
             args.append("--soft")
 
-        self.execute(args + to_reset)
+        self.execute(args + to_reset, **kwargs)
 
     def commit(
         self,
         message: Optional[str] = None,
         allow_empty: bool = False,
         date: datetime.datetime = None,
+        **kwargs,
     ):
         """
         Create a commit with the currents in the working set that are currently in staging.
@@ -442,9 +461,11 @@ class Dolt(DoltT):
             # TODO format properly
             args.extend(["--date", str(date)])
 
-        self.execute(args)
+        self.execute(args, **kwargs)
 
-    def merge(self, branch: str, message: Optional[str] = None, squash: bool = False):
+    def merge(
+        self, branch: str, message: Optional[str] = None, squash: bool = False, **kwargs
+    ):
         """
         Executes a merge operation. If conflicts result, the merge is aborted, as an interactive merge does not really
         make sense in a scripting environment, or at least we have not figured out how to model it in a way that does.
@@ -469,7 +490,7 @@ class Dolt(DoltT):
             args.append("--squash")
 
         args.append(branch)
-        output = self.execute(args).split("\n")
+        output = self.execute(args, **kwargs).split("\n")
         merge_conflict_pos = 2
 
         if len(output) == 3 and "Fast-forward" in output[1]:
@@ -513,6 +534,7 @@ class Dolt(DoltT):
         batch: bool = False,
         multi_db_dir: Optional[str] = None,
         result_parser: Optional[Callable[[str], Any]] = None,
+        **kwargs,
     ):
         """
         Execute a SQL query, using the options to dictate how it is executed, and where the output goes.
@@ -533,7 +555,7 @@ class Dolt(DoltT):
             if any([query, result_format, save, message, batch, multi_db_dir]):
                 raise ValueError("Incompatible arguments provided")
             args.append("--list-saved")
-            self.execute(args)
+            self.execute(args, **kwargs)
 
         if execute:
             if any([query, save, message, list_saved, batch, multi_db_dir]):
@@ -561,12 +583,12 @@ class Dolt(DoltT):
 
             if result_format in ["csv", "json"] and not result_parser:
                 args.extend(["--result-format", result_format])
-                output_file = self.execute(args, stdout_to_file=True)
+                output_file = self.execute(args, stdout_to_file=True, **kwargs)
                 return SQL_OUTPUT_PARSERS[result_format](open(output_file))
 
             else:
                 args.extend(["--result-format", "csv"])
-                output_file = self.execute(args, stdout_to_file=True)
+                output_file = self.execute(args, stdout_to_file=True, **kwargs)
                 if result_parser is None:
                     raise ValueError(
                         f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}"
@@ -576,7 +598,7 @@ class Dolt(DoltT):
         logger.warning("Must provide a value for result_format to get output back")
         if query:
             args.extend(["--query", query])
-        self.execute(args)
+        self.execute(args, **kwargs)
 
     def log(self, number: Optional[int] = None, commit: Optional[str] = None) -> Dict:
         """
@@ -606,6 +628,7 @@ class Dolt(DoltT):
         sql: bool = False,
         where: Optional[str] = None,
         limit: Optional[int] = None,
+        **kwargs,
     ):
         """
         Executes a diff command and prints the output. In the future we plan to create a diff object that will allow
@@ -650,9 +673,9 @@ class Dolt(DoltT):
         if tables:
             args.append(" ".join(to_list(tables)))
 
-        self.execute(args)
+        self.execute(args, **kwargs)
 
-    def blame(self, table_name: str, rev: Optional[str] = None):
+    def blame(self, table_name: str, rev: Optional[str] = None, **kwargs):
         """
         Executes a blame command that prints out a table that shows the authorship of the last change to a row.
         :param table_name:
@@ -665,7 +688,7 @@ class Dolt(DoltT):
             args.append(rev)
 
         args.append(table_name)
-        self.execute(args)
+        self.execute(args, **kwargs)
 
     def branch(
         self,
@@ -676,6 +699,7 @@ class Dolt(DoltT):
         delete: bool = False,
         copy: bool = False,
         move: bool = False,
+        **kwargs,
     ):
         """
         Checkout, create, delete, move, or copy, a branch. Only
@@ -704,7 +728,7 @@ class Dolt(DoltT):
             args.append("--force")
 
         def execute_wrapper(command_args: List[str]):
-            self.execute(command_args)
+            self.execute(command_args, **kwargs)
             return self._get_branches()
 
         if branch_name and not (delete or copy or move):
@@ -770,6 +794,7 @@ class Dolt(DoltT):
         tables: Optional[Union[str, List[str]]] = None,
         checkout_branch: bool = False,
         start_point: Optional[str] = None,
+        **kwargs,
     ):
         """
         Checkout an existing branch, or create a new one, optionally at a specified commit. Or, checkout a table or list
@@ -796,7 +821,7 @@ class Dolt(DoltT):
         if tables:
             args.append(" ".join(to_list(tables)))
 
-        self.execute(args)
+        self.execute(args, **kwargs)
 
     def remote(
         self,
@@ -804,6 +829,7 @@ class Dolt(DoltT):
         name: Optional[str] = None,
         url: Optional[str] = None,
         remove: bool = None,
+        **kwargs,
     ):
         """
         Add or remove remotes to this repository. Note we do not currently support some more esoteric options for using
@@ -817,7 +843,7 @@ class Dolt(DoltT):
         args = ["remote", "--verbose"]
 
         if not (add or remove):
-            output = self.execute(args, print_output=False).split("\n")
+            output = self.execute(args, print_output=False, **kwargs).split("\n")
 
             remotes = []
             for line in output:
@@ -841,7 +867,7 @@ class Dolt(DoltT):
                 raise ValueError("Must provide name and url to add")
             args.extend(["add", name, url])
 
-        self.execute(args)
+        self.execute(args, **kwargs)
 
     def push(
         self,
@@ -849,6 +875,7 @@ class Dolt(DoltT):
         refspec: Optional[str] = None,
         set_upstream: bool = False,
         force: bool = False,
+        **kwargs,
     ):
         """
         Push the to the specified remote. If set_upstream is provided will create an upstream reference of all branches
@@ -872,26 +899,27 @@ class Dolt(DoltT):
             args.append(refspec)
 
         # just print the output
-        self.execute(args)
+        self.execute(args, **kwargs)
 
-    def pull(self, remote: str = "origin"):
+    def pull(self, remote: str = "origin", **kwargs):
         """
         Pull the latest changes from the specified remote.
         :param remote:
         :return:
         """
-        self.execute(["pull", remote])
+        self.execute(["pull", remote], **kwargs)
 
     def fetch(
         self,
         remote: str = "origin",
-        refspec_or_refspecs: Union[str, List[str]] = None,
+        refspecs: Union[str, List[str]] = None,
         force: bool = False,
+        **kwargs,
     ):
         """
         Fetch the specified branch or list of branches from the remote provided, defaults to origin.
         :param remote: the reomte to fetch from
-        :param refspec_or_refspecs: branch or branches to fetch
+        :param refspecs: branch or branches to fetch
         :param force: whether to override local history with remote
         :return:
         """
@@ -901,10 +929,10 @@ class Dolt(DoltT):
             args.append("--force")
         if remote:
             args.append(remote)
-        if refspec_or_refspecs:
-            args.extend(to_list(refspec_or_refspecs))
+        if refspecs:
+            args.extend(to_list(refspecs))
 
-        self.execute(args)
+        self.execute(args, **kwargs)
 
     @staticmethod
     def clone(
@@ -912,6 +940,7 @@ class Dolt(DoltT):
         new_dir: Optional[str] = None,
         remote: Optional[str] = None,
         branch: Optional[str] = None,
+        **kwargs,
     ) -> "Dolt":
         """
         Clones the specified DoltHub database into a new directory, or optionally an existing directory provided by the
@@ -936,7 +965,7 @@ class Dolt(DoltT):
 
         args.append(new_dir)
 
-        _execute(args)
+        _execute(args, **kwargs)
 
         return Dolt(new_dir)
 
@@ -1208,7 +1237,7 @@ class Dolt(DoltT):
 
         return result
 
-    def ls(self, system: bool = False, all: bool = False) -> List[TableT]:
+    def ls(self, system: bool = False, all: bool = False, **kwargs) -> List[TableT]:
         """
         List the tables in the working set, the system tables, or all. Parses the tables and their object hash into an
         object that also provides row count.
@@ -1224,7 +1253,7 @@ class Dolt(DoltT):
         if system:
             args.append("--system")
 
-        output = self.execute(args, print_output=False).split("\n")
+        output = self.execute(args, print_output=False, **kwargs).split("\n")
         tables: List[TableT] = []
         system_pos = None
 
