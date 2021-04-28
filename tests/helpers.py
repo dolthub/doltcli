@@ -1,4 +1,20 @@
+import csv
 from typing import List
+
+
+def write_dict_to_csv(data, file):
+    csv_columns = list(data[0].keys())
+    with open(file, "w") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row)
+
+
+def read_csv_to_dict(file):
+    with open(file, "r") as csvfile:
+        reader = csv.DictReader(csvfile)
+        return list(reader)
 
 
 def compare_rows_helper(expected: List[dict], actual: List[dict]):

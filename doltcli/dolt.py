@@ -307,7 +307,7 @@ class Dolt(DoltT):
         self,
         args: List[str],
         print_output: Optional[bool] = None,
-        stdout_to_file: bool = False,
+        stdout_to_file: str = None,
         error: bool = True,
     ) -> str:
         """
@@ -318,27 +318,27 @@ class Dolt(DoltT):
         :param stdout_to_file:
         :return:
         """
-        if print_output and stdout_to_file:
+        if print_output and stdout_to_file is not None:
             raise ValueError("Cannot print output and send it to a file")
 
-        outfile = None
-        if stdout_to_file:
-            _, outfile = tempfile.mkstemp()
+        # outfile = None
+        # if stdout_to_file:
+        # _, outfile = tempfile.mkstemp()
 
         if not error:
             try:
-                output = _execute(args, self.repo_dir, outfile=outfile)
+                output = _execute(args, self.repo_dir, outfile=stdout_to_file)
             except DoltException as e:
                 output = repr(e)
         else:
-            output = _execute(args, self.repo_dir, outfile=outfile)
+            output = _execute(args, self.repo_dir, outfile=stdout_to_file)
 
         print_output = print_output or self._print_output
         if print_output:
             logger.info(output)
 
-        if outfile:
-            return outfile
+        if stdout_to_file:
+            return stdout_to_file
         else:
             return output
 
@@ -533,6 +533,7 @@ class Dolt(DoltT):
         list_saved: bool = False,
         batch: bool = False,
         multi_db_dir: Optional[str] = None,
+        result_file: Optional[str] = None,
         result_parser: Optional[Callable[[str], Any]] = None,
         **kwargs,
     ):
@@ -574,30 +575,30 @@ class Dolt(DoltT):
                 args.extend(["--message", message])
 
         # do something with result format
-        if result_format or result_parser:
-            if not query:
-                raise ValueError(
-                    "Must provide a query in order to specify a result format"
-                )
-            args.extend(["--query", query])
+        if not query:
+            raise ValueError("Must provide a query in order to specify a result format")
+        args.extend(["--query", query])
 
-            if result_format in ["csv", "json"] and not result_parser:
-                args.extend(["--result-format", result_format])
-                output_file = self.execute(args, stdout_to_file=True, **kwargs)
-                return SQL_OUTPUT_PARSERS[result_format](open(output_file))
-
-            else:
+        if result_parser is not None:
+            with tempfile.NamedTemporaryFile() as f:
                 args.extend(["--result-format", "csv"])
-                output_file = self.execute(args, stdout_to_file=True, **kwargs)
+                output_file = self.execute(args, stdout_to_file=f.name, **kwargs)
                 if result_parser is None:
                     raise ValueError(
                         f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}"
                     )
-                return result_parser(output_file)
+                return result_parser(f.name)
+        elif result_file is not None:
+            args.extend(["--result-format", "csv"])
+            output_file = self.execute(args, stdout_to_file=result_file, **kwargs)
+            return output_file
+        elif result_format in ["csv", "json"]:
+            with tempfile.NamedTemporaryFile() as f:
+                args.extend(["--result-format", result_format])
+                output_file = self.execute(args, stdout_to_file=f.name, **kwargs)
+                return SQL_OUTPUT_PARSERS[result_format](open(output_file))
 
         logger.warning("Must provide a value for result_format to get output back")
-        if query:
-            args.extend(["--query", query])
         self.execute(args, **kwargs)
 
     def log(self, number: Optional[int] = None, commit: Optional[str] = None) -> Dict:

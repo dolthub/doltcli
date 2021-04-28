@@ -1,9 +1,10 @@
+import csv
 import os
 import shutil
+import tempfile
 import uuid
-import csv
 
-from tests.helpers import compare_rows_helper
+from tests.helpers import compare_rows_helper, read_csv_to_dict
 from typing import Tuple, List
 
 import pytest
@@ -382,10 +383,9 @@ def test_remote_list(create_test_table):
     assert set([remote.name for remote in repo.remote()]) == {'origin', 'another-origin'}
 
 
-def test_checkout_non_existent_branch(create_test_table):
-    repo, _ = create_test_table
-    with pytest.raises(DoltException):
-        repo.checkout('master')
+def test_checkout_non_existent_branch(doltdb):
+    repo = Dolt(doltdb)
+    repo.checkout("master")
 
 
 def test_ls(create_test_table):
@@ -528,16 +528,16 @@ def test_dolt_sql_json(init_empty_test_repo):
         row['id'] = str(row['id'])
     compare_rows_helper(BASE_TEST_ROWS, result['rows'])
 
-
 def test_dolt_sql_file(init_empty_test_repo):
     dolt = init_empty_test_repo
 
-    def test_parser(path: str) -> List[dict]:
-        return list(csv.DictReader(open(path)))
-
-    write_rows(dolt, 'test_table', BASE_TEST_ROWS, commit=True)
-    result = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_parser=test_parser)
-    compare_rows_helper(BASE_TEST_ROWS, result)
+    with tempfile.NamedTemporaryFile() as f:
+        write_rows(dolt, 'test_table', BASE_TEST_ROWS, commit=True)
+        result = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_file=f.name)
+        res = read_csv_to_dict(f.name)
+        print(result)
+        print(res)
+        compare_rows_helper(BASE_TEST_ROWS, res)
 
 def test_no_init_error(init_empty_test_repo):
     dolt = init_empty_test_repo
