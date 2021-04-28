@@ -537,6 +537,18 @@ def test_dolt_sql_file(init_empty_test_repo):
         res = read_csv_to_dict(f.name)
         compare_rows_helper(BASE_TEST_ROWS, res)
 
+def test_dolt_sql_errors(doltdb):
+    db = Dolt(doltdb)
+
+    with pytest.raises(ValueError):
+        db.sql(result_parser=lambda x: x, query=None)
+    with pytest.raises(ValueError):
+        db.sql(result_parser=2, query=None)
+    with pytest.raises(ValueError):
+        db.sql(result_file="file.csv", query=None)
+    with pytest.raises(ValueError):
+        db.sql(result_format="csv", query=None)
+
 def test_no_init_error(init_empty_test_repo):
     dolt = init_empty_test_repo
 

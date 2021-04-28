@@ -581,7 +581,7 @@ class Dolt(DoltT):
             with tempfile.NamedTemporaryFile() as f:
                 args.extend(["--result-format", "csv"])
                 output_file = self.execute(args, stdout_to_file=f.name, **kwargs)
-                if result_parser is None:
+                if not hasattr(result_parser, "__call__"):
                     raise ValueError(
                         f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}"
                     )
