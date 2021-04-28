@@ -535,8 +535,6 @@ def test_dolt_sql_file(init_empty_test_repo):
         write_rows(dolt, 'test_table', BASE_TEST_ROWS, commit=True)
         result = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_file=f.name)
         res = read_csv_to_dict(f.name)
-        print(result)
-        print(res)
         compare_rows_helper(BASE_TEST_ROWS, res)
 
 def test_no_init_error(init_empty_test_repo):

@@ -321,10 +321,6 @@ class Dolt(DoltT):
         if print_output and stdout_to_file is not None:
             raise ValueError("Cannot print output and send it to a file")
 
-        # outfile = None
-        # if stdout_to_file:
-        # _, outfile = tempfile.mkstemp()
-
         if not error:
             try:
                 output = _execute(args, self.repo_dir, outfile=stdout_to_file)
@@ -575,11 +571,13 @@ class Dolt(DoltT):
                 args.extend(["--message", message])
 
         # do something with result format
-        if not query:
-            raise ValueError("Must provide a query in order to specify a result format")
-        args.extend(["--query", query])
-
         if result_parser is not None:
+            if query is None:
+                raise ValueError(
+                    "Must provide a query in order to specify a result format"
+                )
+            args.extend(["--query", query])
+
             with tempfile.NamedTemporaryFile() as f:
                 args.extend(["--result-format", "csv"])
                 output_file = self.execute(args, stdout_to_file=f.name, **kwargs)
@@ -589,16 +587,31 @@ class Dolt(DoltT):
                     )
                 return result_parser(f.name)
         elif result_file is not None:
+            if query is None:
+                raise ValueError(
+                    "Must provide a query in order to specify a result format"
+                )
+            args.extend(["--query", query])
+
             args.extend(["--result-format", "csv"])
             output_file = self.execute(args, stdout_to_file=result_file, **kwargs)
             return output_file
         elif result_format in ["csv", "json"]:
+            if query is None:
+                raise ValueError(
+                    "Must provide a query in order to specify a result format"
+                )
+            args.extend(["--query", query])
+
             with tempfile.NamedTemporaryFile() as f:
                 args.extend(["--result-format", result_format])
                 output_file = self.execute(args, stdout_to_file=f.name, **kwargs)
                 return SQL_OUTPUT_PARSERS[result_format](open(output_file))
 
         logger.warning("Must provide a value for result_format to get output back")
+        if query is not None:
+            args.extend(["--query", query])
+
         self.execute(args, **kwargs)
 
     def log(self, number: Optional[int] = None, commit: Optional[str] = None) -> Dict:
