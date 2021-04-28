@@ -543,7 +543,7 @@ def test_dolt_sql_errors(doltdb):
     with pytest.raises(ValueError):
         db.sql(result_parser=lambda x: x, query=None)
     with pytest.raises(ValueError):
-        db.sql(result_parser=2, query=None)
+        db.sql(result_parser=2, query="select active_branch()")
     with pytest.raises(ValueError):
         db.sql(result_file="file.csv", query=None)
     with pytest.raises(ValueError):
