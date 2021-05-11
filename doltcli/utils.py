@@ -16,6 +16,7 @@ from .types import DoltT
 
 dolt_path = "dolt"
 
+
 def set_dolt_path(path: str):
     global dolt_path
     dolt_path = path
