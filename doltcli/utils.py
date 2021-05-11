@@ -14,6 +14,14 @@ logger = logging.getLogger()
 from .types import DoltT
 
 
+DOLT_PATH = "dolt"
+
+
+def set_dolt_path(path: str):
+    global DOLT_PATH
+    DOLT_PATH = path
+
+
 def read_columns(
     dolt: DoltT, table: str, as_of: Optional[str] = None
 ) -> Dict[str, list]:

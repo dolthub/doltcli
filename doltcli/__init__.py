@@ -30,6 +30,7 @@ from .utils import (
     read_columns_sql,
     read_rows,
     read_rows_sql,
+    set_dolt_path,
     write_columns,
     write_file,
     write_rows,

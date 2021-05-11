@@ -72,7 +72,9 @@ class DoltDirectoryException(Exception):
 
 
 def _execute(args: List[str], cwd: Optional[str] = None, outfile: Optional[str] = None):
-    _args = ["dolt"] + args
+    from .utils import DOLT_PATH
+
+    _args = [DOLT_PATH] + args
     str_args = " ".join(" ".join(args).split())
     logger.info(str_args)
     if outfile:
