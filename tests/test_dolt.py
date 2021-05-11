@@ -563,6 +563,8 @@ def test_set_dolt_path_error(doltdb):
     try:
         with pytest.raises(FileNotFoundError):
             set_dolt_path("notdolt")
+            from doltcli.utils import DOLT_PATH
+            assert DOLT_PATH == "notdolt"
             db.sql(test_cmd, result_format="csv")
     finally:
         set_dolt_path("dolt")
