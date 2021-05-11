@@ -17,6 +17,7 @@ from doltcli import (
     UPDATE,
     read_rows,
     write_rows,
+    set_dolt_path,
 )
 
 
@@ -553,6 +554,18 @@ def test_no_init_error(init_empty_test_repo):
     dolt = init_empty_test_repo
 
     dolt.init(dolt.repo_dir, error=False)
+
+def test_set_dolt_path_error(doltdb):
+    db = Dolt(doltdb)
+    set_dolt_path("dolt")
+    test_cmd = "show tables"
+    db.sql(test_cmd, result_format="csv")
+    try:
+        with pytest.raises(FileNotFoundError):
+            set_dolt_path("notdolt")
+            db.sql(test_cmd, result_format="csv")
+    finally:
+        set_dolt_path("dolt")
 
 def test_no_checkout_error(init_empty_test_repo):
     dolt = init_empty_test_repo
