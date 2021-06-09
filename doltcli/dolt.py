@@ -586,7 +586,7 @@ class Dolt(DoltT):
                     raise ValueError(
                         f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}"
                     )
-                return result_parser(f.name)
+                return result_parser(output_file)
         elif result_file is not None:
             if query is None:
                 raise ValueError(
@@ -608,7 +608,7 @@ class Dolt(DoltT):
                 f = os.path.join(d, "tmpfile")
                 args.extend(["--result-format", result_format])
                 output_file = self.execute(args, stdout_to_file=f, **kwargs)
-                return SQL_OUTPUT_PARSERS[result_format](open(f))
+                return SQL_OUTPUT_PARSERS[result_format](open(output_file))
 
         logger.warning("Must provide a value for result_format to get output back")
         if query is not None:
