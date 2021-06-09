@@ -580,6 +580,7 @@ class Dolt(DoltT):
             args.extend(["--query", query])
 
             with tempfile.TemporaryDirectory() as d:
+                args.extend(["--result-format", "csv"])
                 f = os.path.join(d, "tmpfile")
                 output_file = self.execute(args, stdout_to_file=f, **kwargs)
                 if not hasattr(result_parser, "__call__"):
