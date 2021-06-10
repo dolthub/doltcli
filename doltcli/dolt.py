@@ -591,7 +591,7 @@ class Dolt(DoltT):
                     )
                 return result_parser(output_file)
             finally:
-                shutil.rmtree(d, onerror=None)
+                shutil.rmtree(d, ignore_errors=True, onerror=None)
         elif result_file is not None:
             if query is None:
                 raise ValueError(
@@ -614,9 +614,10 @@ class Dolt(DoltT):
                 f = os.path.join(d, "tmpfile")
                 args.extend(["--result-format", result_format])
                 output_file = self.execute(args, stdout_to_file=f, **kwargs)
-                return SQL_OUTPUT_PARSERS[result_format](open(output_file, newline=""))
+                with open(output_file, newline="") as fh:
+                    return SQL_OUTPUT_PARSERS[result_format](fh)
             finally:
-                shutil.rmtree(d, onerror=None)
+                shutil.rmtree(d, ignore_errors=True, onerror=None)
 
         logger.warning("Must provide a value for result_format to get output back")
         if query is not None:
