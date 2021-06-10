@@ -5,6 +5,7 @@ import os
 import tempfile
 from collections import OrderedDict
 import datetime
+import shutil
 from subprocess import PIPE, Popen
 from typing import List, Dict, Tuple, Union, Optional, Callable, Any
 
@@ -78,7 +79,7 @@ def _execute(args: List[str], cwd: Optional[str] = None, outfile: Optional[str] 
     str_args = " ".join(" ".join(args).split())
     logger.info(str_args)
     if outfile:
-        with open(outfile, "w") as f:
+        with open(outfile, "w", newline="") as f:
             proc = Popen(args=_args, cwd=cwd, stdout=f, stderr=PIPE)
     else:
         proc = Popen(args=_args, cwd=cwd, stdout=PIPE, stderr=PIPE)
@@ -579,7 +580,8 @@ class Dolt(DoltT):
                 )
             args.extend(["--query", query])
 
-            with tempfile.TemporaryDirectory() as d:
+            try:
+                d = tempfile.mkdtemp()
                 args.extend(["--result-format", "csv"])
                 f = os.path.join(d, "tmpfile")
                 output_file = self.execute(args, stdout_to_file=f, **kwargs)
@@ -588,6 +590,8 @@ class Dolt(DoltT):
                         f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}"
                     )
                 return result_parser(output_file)
+            finally:
+                shutil.rmtree(d, onerror=None)
         elif result_file is not None:
             if query is None:
                 raise ValueError(
@@ -605,11 +609,14 @@ class Dolt(DoltT):
                 )
             args.extend(["--query", query])
 
-            with tempfile.TemporaryDirectory() as d:
+            try:
+                d = tempfile.mkdtemp()
                 f = os.path.join(d, "tmpfile")
                 args.extend(["--result-format", result_format])
                 output_file = self.execute(args, stdout_to_file=f, **kwargs)
-                return SQL_OUTPUT_PARSERS[result_format](open(output_file))
+                return SQL_OUTPUT_PARSERS[result_format](open(output_file, newline=""))
+            finally:
+                shutil.rmtree(d, onerror=None)
 
         logger.warning("Must provide a value for result_format to get output back")
         if query is not None:
