@@ -200,7 +200,7 @@ def _import_helper(
     import_flags = IMPORT_MODES_TO_FLAGS[import_mode]
     try:
         write_import_file(fname)
-        args = ["table", "import", table] + import_flags
+        args = ["table", "import", "--no-gc", table] + import_flags
         if primary_key:
             args += ["--pk={}".format(",".join(primary_key))]
 
