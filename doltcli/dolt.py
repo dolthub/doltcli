@@ -5,6 +5,7 @@ import os
 import tempfile
 from collections import OrderedDict
 import datetime
+import shutil
 from subprocess import PIPE, Popen
 from typing import List, Dict, Tuple, Union, Optional, Callable, Any
 
@@ -78,8 +79,7 @@ def _execute(args: List[str], cwd: Optional[str] = None, outfile: Optional[str] 
     str_args = " ".join(" ".join(args).split())
     logger.info(str_args)
     if outfile:
-        with open(outfile, "w") as f:
-            # _outfile = open(outfile, "w") if outfile else PIPE
+        with open(outfile, "w", newline="") as f:
             proc = Popen(args=_args, cwd=cwd, stdout=f, stderr=PIPE)
     else:
         proc = Popen(args=_args, cwd=cwd, stdout=PIPE, stderr=PIPE)
@@ -580,14 +580,18 @@ class Dolt(DoltT):
                 )
             args.extend(["--query", query])
 
-            with tempfile.NamedTemporaryFile() as f:
+            try:
+                d = tempfile.mkdtemp()
                 args.extend(["--result-format", "csv"])
-                output_file = self.execute(args, stdout_to_file=f.name, **kwargs)
+                f = os.path.join(d, "tmpfile")
+                output_file = self.execute(args, stdout_to_file=f, **kwargs)
                 if not hasattr(result_parser, "__call__"):
                     raise ValueError(
                         f"Invalid argument: `result_parser` should be Callable; found {type(result_parser)}"
                     )
-                return result_parser(f.name)
+                return result_parser(output_file)
+            finally:
+                shutil.rmtree(d, ignore_errors=True, onerror=None)
         elif result_file is not None:
             if query is None:
                 raise ValueError(
@@ -605,10 +609,15 @@ class Dolt(DoltT):
                 )
             args.extend(["--query", query])
 
-            with tempfile.NamedTemporaryFile() as f:
+            try:
+                d = tempfile.mkdtemp()
+                f = os.path.join(d, "tmpfile")
                 args.extend(["--result-format", result_format])
-                output_file = self.execute(args, stdout_to_file=f.name, **kwargs)
-                return SQL_OUTPUT_PARSERS[result_format](open(output_file))
+                output_file = self.execute(args, stdout_to_file=f, **kwargs)
+                with open(output_file, newline="") as fh:
+                    return SQL_OUTPUT_PARSERS[result_format](fh)
+            finally:
+                shutil.rmtree(d, ignore_errors=True, onerror=None)
 
         logger.warning("Must provide a value for result_format to get output back")
         if query is not None:

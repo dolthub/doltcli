@@ -75,7 +75,7 @@ def write_file(
     commit_date: Optional[datetime.datetime] = None,
 ):
     def writer(filepath: str):
-        with open(filepath, "w") as f:
+        with open(filepath, "w", newline="") as f:
             f.writelines(file_handle.readlines())
 
     _import_helper(
@@ -117,7 +117,7 @@ def write_columns(
         if len(list(set(len(col) for col in columns.values()))) != 1:
             raise ValueError("Must pass columns of identical length")
 
-        with open(filepath, "w") as f:
+        with open(filepath, "w", newline="") as f:
             csv_writer = csv.DictWriter(f, columns.keys())
             rows = columns_to_rows(columns)
             csv_writer.writeheader()
@@ -159,7 +159,7 @@ def write_rows(
     """
 
     def writer(filepath: str):
-        with open(filepath, "w") as f:
+        with open(filepath, "w", newline="") as f:
             fieldnames: Set[str] = set()
             for row in rows:
                 print(row)

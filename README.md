@@ -2,12 +2,12 @@
 
 This is a minimalist package intended for data engineering applications:
 
-- ~100kb is size unzipped
-- one dependency -- Dolt
+- unzipped size ~100kb
+- one dependency -- Dolt bunary
 - only changes when Dolt changes
 
 If you are a data scientist or are using Pandas there are three options:
-- Use [doltpy]()
+- Use [doltpy](https://github.com/dolthub/doltpy)
 - Use [pandas.sql](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html)
   with [dolt
   sql-server](https://docs.dolthub.com/interfaces/cli#dolt-sql-server)
@@ -15,7 +15,7 @@ If you are a data scientist or are using Pandas there are three options:
   `pd.Dataframe.from_records(...)` or another [DataFrame instantiate of
   choice](https://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html).
 
-Note: `doltcli` is in beta-mode of development. The interface does not
+Note: `doltcli` is in development. The interface does not
 completely wrap Dolt CLI yet, and may have function signature changes in
 the short-term. Reach out to the team on our discord if you have
 questions regarding production use-cases.
