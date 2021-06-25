@@ -573,3 +573,22 @@ def test_no_checkout_error(init_empty_test_repo):
     dolt = init_empty_test_repo
 
     dolt.checkout(branch="master", error=False)
+
+def test_reset(doltdb):
+    db = Dolt(doltdb)
+    db.reset()
+    db.reset(hard=True)
+    db.reset(soft=True)
+    db.reset(tables="t1")
+    db.reset(tables=["t1"])
+
+def test_reset_errors(doltdb):
+    db = Dolt(doltdb)
+    with pytest.raises(ValueError):
+        db.reset(hard=True, soft=True)
+    with pytest.raises(ValueError):
+        db.reset(tables="t1", hard=True)
+    with pytest.raises(ValueError):
+        db.reset(tables="t1", soft=True)
+    with pytest.raises(ValueError):
+        db.reset(tables={"t1": True})

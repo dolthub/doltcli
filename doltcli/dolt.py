@@ -406,7 +406,7 @@ class Dolt(DoltT):
 
     def reset(
         self,
-        tables: Union[str, List[str]],
+        tables: Union[str, List[str]] = [],
         hard: bool = False,
         soft: bool = False,
         **kwargs,
@@ -419,19 +419,30 @@ class Dolt(DoltT):
         :param soft:
         :return:
         """
+        if not isinstance(tables, (str, list)):
+            raise ValueError(f"tables should be: Union[str, List[str]]; found {type(tables)}")
+
         to_reset = to_list(tables)
 
         args = ["reset"]
 
         if hard and soft:
-            raise ValueError("Cannot reset hard and soft")
+            raise ValueError("Specify one of: hard=True, soft=True")
+
+        if (hard or soft) and to_reset:
+            raise ValueError("Specify either hard/soft flag, or tables to reset")
 
         if hard:
             args.append("--hard")
-        if soft:
+        elif soft:
             args.append("--soft")
+        elif not tables:
+            args.append("--soft")
+        else:
+            args.append(to_reset)
 
-        self.execute(args + to_reset, **kwargs)
+        print(args)
+        self.execute(args, **kwargs)
 
     def commit(
         self,
