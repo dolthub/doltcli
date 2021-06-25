@@ -8,7 +8,7 @@ fmt: ## Format code with black and isort
 
 .PHONY: lint
 lint: ## Run linters
-				mypy ${package} \
+				mypy ${package}
 				flake8 ${package}  \
 					--max-line-length=${line_length} \
 					--ignore=F401,E501
