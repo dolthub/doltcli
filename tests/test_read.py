@@ -1,26 +1,26 @@
 from typing import List
+
 import pytest
-from tests.helpers import compare_rows_helper
+
 from doltcli import (
-    Dolt,
-    write_rows,
     CREATE,
     UPDATE,
-    read_rows,
-    read_columns,
+    Dolt,
     columns_to_rows,
+    read_columns,
+    read_rows,
+    write_rows,
 )
+from tests.helpers import compare_rows_helper
 
-TEST_TABLE = 'characters'
+TEST_TABLE = "characters"
 TEST_DATA_INITIAL = [
-    {'name': 'Anna', 'adjective': 'tragic', 'id': '1', 'date_of_death': '1877-01-01'},
-    {'name': 'Vronksy', 'adjective': 'honorable', 'id': '2', 'date_of_death': ''},
-    {'name': 'Oblonksy', 'adjective': 'buffoon', 'id': '3', 'date_of_death': ''},
+    {"name": "Anna", "adjective": "tragic", "id": "1", "date_of_death": "1877-01-01"},
+    {"name": "Vronksy", "adjective": "honorable", "id": "2", "date_of_death": ""},
+    {"name": "Oblonksy", "adjective": "buffoon", "id": "3", "date_of_death": ""},
 ]
 
-TEST_DATA_UPDATE = [
-    {'name': 'Levin', 'adjective': 'tiresome', 'id': '4', 'date_of_death': ''}
-]
+TEST_DATA_UPDATE = [{"name": "Levin", "adjective": "tiresome", "id": "4", "date_of_death": ""}]
 
 TEST_DATA_COMBINED = TEST_DATA_INITIAL + TEST_DATA_UPDATE
 
@@ -37,7 +37,7 @@ def update_test_data(dolt: Dolt):
 
 
 def _write_helper(dolt: Dolt, data: List[dict], update_type: str):
-    write_rows(dolt, TEST_TABLE, data, update_type, ['id'], commit=True)
+    write_rows(dolt, TEST_TABLE, data, update_type, ["id"], commit=True)
     commit_hash, _ = dolt.log().popitem(last=False)
     return dolt, commit_hash
 

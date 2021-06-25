@@ -1,30 +1,15 @@
 import csv
+import datetime
 import json
 import logging
 import os
+import shutil
 import tempfile
 from collections import OrderedDict
-import datetime
-import shutil
 from subprocess import PIPE, Popen
-from typing import List, Dict, Tuple, Union, Optional, Callable, Any
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-logger = logging.getLogger(__name__)
-
-SQL_OUTPUT_PARSERS = {
-    "csv": lambda fh: list(csv.DictReader(fh)),
-    "json": lambda fh: json.load(fh),
-}
-
-from .types import (
-    BranchT,
-    CommitT,
-    DoltT,
-    KeyPairT,
-    RemoteT,
-    StatusT,
-    TableT,
-)
+from .types import BranchT, CommitT, DoltT, KeyPairT, RemoteT, StatusT, TableT
 from .utils import (
     read_columns,
     read_columns_sql,
@@ -35,6 +20,14 @@ from .utils import (
     write_file,
     write_rows,
 )
+
+logger = logging.getLogger(__name__)
+
+
+SQL_OUTPUT_PARSERS = {
+    "csv": lambda fh: list(csv.DictReader(fh)),
+    "json": lambda fh: json.load(fh),
+}
 
 
 class DoltException(Exception):
@@ -144,7 +137,7 @@ class Commit(CommitT):
         commit: Optional[str] = None,
         head: Optional[str] = None,
     ):
-        base = f"""
+        base = """
             select
                 dc.`commit_hash` as commit_hash,
                 dca.`parent_hash` as parent_hash,
@@ -161,7 +154,7 @@ class Commit(CommitT):
         if commit is not None:
             base += f"\nWHERE dc.`commit_hash`='{commit}'"
 
-        base += f"\nORDER BY `date` DESC"
+        base += "\nORDER BY `date` DESC"
 
         if number is not None:
             base += f"\nLIMIT {number}"
@@ -243,12 +236,8 @@ class DoltHubContext:
             if self.db_path is None:
                 raise ValueError("Cannot clone remote data without db_path set")
             if self.tables_to_read:
-                logger.info(
-                    f"Running read-tables, creating a fresh copy of {self.db_path}"
-                )
-                dolt = Dolt.read_tables(
-                    self.db_path, "master", tables=self.tables_to_read
-                )
+                logger.info(f"Running read-tables, creating a fresh copy of {self.db_path}")
+                dolt = Dolt.read_tables(self.db_path, "master", tables=self.tables_to_read)
             else:
                 logger.info(f"Running clone, cloning remote {self.db_path}")
                 dolt = Dolt.clone(self.db_path, self.path)
@@ -280,11 +269,11 @@ class Dolt(DoltT):
     @property
     def head(self):
         head_hash = "HASHOF('HEAD')"
-        head_commit = self.sql(f"select {head_hash} as hash", result_format="csv")[
-            0
-        ].get("hash", None)
+        head_commit = self.sql(f"select {head_hash} as hash", result_format="csv")[0].get(
+            "hash", None
+        )
         if not head_commit:
-            raise ValueError(f"Head not found")
+            raise ValueError("Head not found")
         return head_commit
 
     @property
@@ -293,16 +282,16 @@ class Dolt(DoltT):
             f"select @@{self.repo_name}_working as working", result_format="csv"
         )[0].get("working", None)
         if not working:
-            raise ValueError(f"Working head not found")
+            raise ValueError("Working head not found")
         return working
 
     @property
     def active_branch(self):
-        active_branch = self.sql(f"select active_branch() as a", result_format="csv")[
-            0
-        ].get("a", None)
+        active_branch = self.sql("select active_branch() as a", result_format="csv")[0].get(
+            "a", None
+        )
         if not active_branch:
-            raise ValueError(f"Active branch not found")
+            raise ValueError("Active branch not found")
         return active_branch
 
     def execute(
@@ -355,7 +344,7 @@ class Dolt(DoltT):
 
         try:
             _execute(["init"], cwd=repo_dir)
-        except DoltException as e:
+        except DoltException:
             if not error:
                 return Dolt(repo_dir)
         return Dolt(repo_dir)
@@ -439,9 +428,8 @@ class Dolt(DoltT):
         elif not tables:
             args.append("--soft")
         else:
-            args.append(to_reset)
+            args += to_reset
 
-        print(args)
         self.execute(args, **kwargs)
 
     def commit(
@@ -503,9 +491,7 @@ class Dolt(DoltT):
         merge_conflict_pos = 2
 
         if len(output) == 3 and "Fast-forward" in output[1]:
-            logger.info(
-                f"Completed fast-forward merge of {branch} into {current_branch.name}"
-            )
+            logger.info(f"Completed fast-forward merge of {branch} into {current_branch.name}")
             return
 
         if len(output) == 5 and output[merge_conflict_pos].startswith("CONFLICT"):
@@ -525,9 +511,7 @@ class Dolt(DoltT):
         logger.info(message)
         status = self.status()
 
-        for table in list(status.added_tables.keys()) + list(
-            status.modified_tables.keys()
-        ):
+        for table in list(status.added_tables.keys()) + list(status.modified_tables.keys()):
             self.add(table)
 
         self.commit(message)
@@ -569,7 +553,7 @@ class Dolt(DoltT):
 
         if execute:
             if any([query, save, message, list_saved, batch, multi_db_dir]):
-                raise ValueError(f"Incompatible arguments provided")
+                raise ValueError("Incompatible arguments provided")
             args.extend(["--execute", str(execute)])
 
         if multi_db_dir:
@@ -586,9 +570,7 @@ class Dolt(DoltT):
         # do something with result format
         if result_parser is not None:
             if query is None:
-                raise ValueError(
-                    "Must provide a query in order to specify a result format"
-                )
+                raise ValueError("Must provide a query in order to specify a result format")
             args.extend(["--query", query])
 
             try:
@@ -605,9 +587,7 @@ class Dolt(DoltT):
                 shutil.rmtree(d, ignore_errors=True, onerror=None)
         elif result_file is not None:
             if query is None:
-                raise ValueError(
-                    "Must provide a query in order to specify a result format"
-                )
+                raise ValueError("Must provide a query in order to specify a result format")
             args.extend(["--query", query])
 
             args.extend(["--result-format", "csv"])
@@ -615,9 +595,7 @@ class Dolt(DoltT):
             return output_file
         elif result_format in ["csv", "json"]:
             if query is None:
-                raise ValueError(
-                    "Must provide a query in order to specify a result format"
-                )
+                raise ValueError("Must provide a query in order to specify a result format")
             args.extend(["--query", query])
 
             try:
@@ -646,9 +624,7 @@ class Dolt(DoltT):
         """
         res = read_rows_sql(
             self,
-            sql=Commit.get_log_table_query(
-                number=number, commit=commit, head=self.head
-            ),
+            sql=Commit.get_log_table_query(number=number, commit=commit, head=self.head),
         )
         commits = Commit.parse_dolt_log_table(res)
         return commits
@@ -809,7 +785,7 @@ class Dolt(DoltT):
         dicts = read_rows_sql(self, sql="select * from dolt_branches")
         branches = [Branch(**d) for d in dicts]
         ab_dicts = read_rows_sql(
-            self, f"select * from dolt_branches where name = (select active_branch())"
+            self, "select * from dolt_branches where name = (select active_branch())"
         )
 
         if len(ab_dicts) != 1:
@@ -842,9 +818,7 @@ class Dolt(DoltT):
         :return:
         """
         if tables and branch:
-            raise ValueError(
-                "No tables may be provided when creating a branch with checkout"
-            )
+            raise ValueError("No tables may be provided when creating a branch with checkout")
         args = ["checkout"]
 
         if branch:
@@ -1006,9 +980,7 @@ class Dolt(DoltT):
         return Dolt(new_dir)
 
     @classmethod
-    def _new_dir_helper(
-        cls, new_dir: Optional[str] = None, remote_url: Optional[str] = None
-    ):
+    def _new_dir_helper(cls, new_dir: Optional[str] = None, remote_url: Optional[str] = None):
         if not (new_dir or remote_url):
             raise ValueError("Provide either new_dir or remote_url")
         elif remote_url and not new_dir:
@@ -1110,9 +1082,7 @@ class Dolt(DoltT):
 
         return creds
 
-    def creds_check(
-        self, endpoint: Optional[str] = None, creds: Optional[str] = None
-    ) -> bool:
+    def creds_check(self, endpoint: Optional[str] = None, creds: Optional[str] = None) -> bool:
         """
         Check that credentials authenticate with the specified endpoint, return True if authorized, False otherwise.
         :param endpoint: the endpoint to check
@@ -1266,7 +1236,7 @@ class Dolt(DoltT):
 
         output = _execute(args, cwd).split("\n")
         result = {}
-        for line in [l for l in output if l and "=" in l]:
+        for line in [x for x in output if x is not None and "=" in x]:
             split = line.split(" = ")
             config_name, config_val = split[0], split[1]
             result[config_name] = config_val
@@ -1306,9 +1276,7 @@ class Dolt(DoltT):
                 if not line:
                     pass
                 split = line.lstrip().split()
-                tables.append(
-                    Table(name=split[0], root=split[1], row_cnt=int(split[2]))
-                )
+                tables.append(Table(name=split[0], root=split[1], row_cnt=int(split[2])))
 
         if system_pos:
             for line in output[system_pos:]:

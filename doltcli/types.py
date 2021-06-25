@@ -1,8 +1,7 @@
-from dataclasses import asdict, dataclass
 import datetime
 import json
-from typing import Dict, List, Optional, Union, Callable, Any
-import io
+from dataclasses import asdict, dataclass
+from typing import Any, Callable, Dict, List, Optional, Union
 
 
 class Encoder(json.JSONEncoder):
@@ -123,7 +122,10 @@ class DoltT:
         ...
 
     def merge(
-        self, branch: str, message: Optional[str] = ..., squash: bool = False
+        self,
+        branch: str,
+        message: Optional[str] = ...,
+        squash: bool = False,
     ) -> None:
         ...
 

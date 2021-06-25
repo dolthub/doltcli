@@ -5,7 +5,7 @@ description = "Slim Python interface for Dolt's CLI API."
 authors = ["Max Hoffman <max@dolthub.com>", "Oscar Batori <oscar@dolthub.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.6.1,<4.0"
 dataclasses = {version = ">=0.6", markers = "python_version < \"3.7\""}
 
 [tool.poetry.dev-dependencies]
@@ -13,6 +13,11 @@ pytest = "^6.2.2"
 black = "^20.8b1"
 mypy = "0.800"
 pytest-cov = "^2.11.1"
+isort = "^5.9.1"
+flake8 = "^3.9.2"
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]
