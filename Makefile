@@ -1,4 +1,5 @@
 line_length = 95
+package = doltcli
 
 .PHONY: fmt
 fmt: ## Format code with black and isort
@@ -7,11 +8,11 @@ fmt: ## Format code with black and isort
 
 .PHONY: lint
 lint: ## Run linters
-				mypy doltcli
-				flake8 doltcli \
+				mypy ${package} \
+				flake8 ${package}  \
 					--max-line-length=${line_length} \
 					--ignore=F401,E501
 
 .PHONY: lint
 test: ## Run tests
-				pytest tests --cov=gsheets_to_csv --cov-report=term --cov-report xml
+				pytest tests --cov=${package} --cov-report=term --cov-report xml
