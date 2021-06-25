@@ -4,21 +4,13 @@ from .dolt import (
     Dolt,
     DoltException,
     DoltHubContext,
-    _execute,
     KeyPair,
     Remote,
     Status,
     Table,
+    _execute,
 )
-from .types import (
-    BranchT,
-    CommitT,
-    DoltT,
-    KeyPairT,
-    RemoteT,
-    StatusT,
-    TableT,
-)
+from .types import BranchT, CommitT, DoltT, KeyPairT, RemoteT, StatusT, TableT
 from .utils import (
     CREATE,
     FORCE_CREATE,

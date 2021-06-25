@@ -40,13 +40,15 @@ jobs:
       - name: Install poetry dependencies
         run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      - name: Execute black
-        run: poetry run black . --check --exclude tests -t py37
-      - name: Execute mypy
-        run: poetry run mypy doltcli
+      - name: Format
+        run: |
+          poetry run make fmt
+      - name: Lint
+        run: |
+          poetry run make lint
       - name: Execute pytest
         run: |
-          poetry run pytest . --cov=doltcli --cov-report=term --cov-report xml
+          poetry run make test
       - uses: codecov/codecov-action@v1
         if: ${{ matrix.python-version }} == '3.9'
         with:
