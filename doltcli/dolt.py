@@ -987,11 +987,15 @@ class Dolt(DoltT):
             split = remote_url.split("/")
             new_dir = os.path.join(os.getcwd(), split[-1])
             if os.path.exists(new_dir):
-                raise DoltDirectoryException(f"Path already exists: {new_dir}. Cannot create new directory")
+                raise DoltDirectoryException(
+                    f"Path already exists: {new_dir}. Cannot create new directory"
+                )
             os.mkdir(new_dir)
             return new_dir
         elif new_dir and os.path.exists(new_dir):
-            raise DoltDirectoryException(f"PAth already exists: {new_dir}. Cannot create new directory")
+            raise DoltDirectoryException(
+                f"PAth already exists: {new_dir}. Cannot create new directory"
+            )
         else:
             return new_dir
 
