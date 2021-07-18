@@ -512,14 +512,27 @@ def test_detached_head_cm(doltdb):
     assert sum2["sum"] == "6"
 
 
-def test_new_dir_helper(tmp_path):
+def test_get_clone_dir_no_remote(tmp_path):
     new_dir = os.path.join(tmp_path, "new_dir")
+    res = Dolt._get_clone_dir(new_dir)
+    assert new_dir == res
 
-    assert not os.path.exists(new_dir)
 
-    Dolt._new_dir_helper(new_dir)
+def test_get_clone_dir_remote_only(tmp_path):
+    new_dir = os.path.join(os.getcwd(), "remote")
+    res = Dolt._get_clone_dir(remote_url="some/remote")
+    assert new_dir == res
 
-    assert not os.path.exists(new_dir)
+
+def test_get_clone_dir_new_dir_only(tmp_path):
+    res = Dolt._get_clone_dir("new_dir")
+    assert "new_dir" == res
+
+
+def test_get_clone_dir_new_dir_and_remote(tmp_path):
+    new_dir = os.path.join("foo/bar", "remote")
+    res = Dolt._get_clone_dir(new_dir="foo/bar", remote_url="some/remote")
+    assert new_dir == res
 
 
 def test_clone_new_dir(tmp_path):
