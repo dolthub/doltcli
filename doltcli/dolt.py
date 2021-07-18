@@ -220,14 +220,18 @@ class DoltHubContext:
         tables_to_read: Optional[List[str]] = None,
     ):
         self.db_path = db_path
-        self.path = os.path.join(tempfile.mkdtemp(), self._get_db_name(db_path)) if not path else path
+        self.path = (
+            os.path.join(tempfile.mkdtemp(), self._get_db_name(db_path))
+            if not path
+            else path
+        )
         self.remote = remote
         self.dolt = None
         self.tables_to_read = tables_to_read
 
     @classmethod
     def _get_db_name(cls, db_path):
-        split = db_path.split('/')
+        split = db_path.split("/")
         if len(split) != 2:
             raise ValueError(f"Invalid DoltHub path {db_path}")
         return split[1]

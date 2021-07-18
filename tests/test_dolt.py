@@ -272,7 +272,9 @@ def test_dolt_log_merge_commit(create_test_table):
     second_merge_parent = commits[2]
 
     assert merge_commit.message == message_merge
-    assert {first_merge_parent.ref, second_merge_parent.ref} == set(merge_commit.parents)
+    assert {first_merge_parent.ref, second_merge_parent.ref} == set(
+        merge_commit.parents
+    )
 
 
 def test_get_dirty_tables(create_test_table):
@@ -310,14 +312,24 @@ def test_get_dirty_tables(create_test_table):
     # created, staged
     created_staged = "created_staged"
     write_rows(
-        repo, created_staged, initial, import_mode=CREATE, primary_key=["id"], commit=False
+        repo,
+        created_staged,
+        initial,
+        import_mode=CREATE,
+        primary_key=["id"],
+        commit=False,
     )
     repo.add(created_staged)
 
     # created, unstaged
     created_unstaged = "created_unstaged"
     write_rows(
-        repo, created_unstaged, initial, import_mode=CREATE, primary_key=["id"], commit=False
+        repo,
+        created_unstaged,
+        initial,
+        import_mode=CREATE,
+        primary_key=["id"],
+        commit=False,
     )
 
     status = repo.status()
@@ -378,7 +390,9 @@ def test_branch_move(create_test_table):
 
 def _verify_branches(repo: Dolt, branch_list: List[str]):
     _, branches = repo.branch()
-    assert set(branch.name for branch in branches) == set(branch for branch in branch_list)
+    assert set(branch.name for branch in branches) == set(
+        branch for branch in branch_list
+    )
 
 
 def test_remote_list(create_test_table):
@@ -386,7 +400,10 @@ def test_remote_list(create_test_table):
     repo.remote(add=True, name="origin", url="blah-blah")
     assert repo.remote()[0].name == "origin"
     repo.remote(add=True, name="another-origin", url="blah-blah")
-    assert set([remote.name for remote in repo.remote()]) == {"origin", "another-origin"}
+    assert set([remote.name for remote in repo.remote()]) == {
+        "origin",
+        "another-origin",
+    }
 
 
 def test_checkout_non_existent_branch(doltdb):
@@ -476,8 +493,12 @@ def test_config_global(init_empty_test_repo):
         updated_config["user.name"] == test_username
         and updated_config["user.email"] == test_email
     )
-    Dolt.config_global(add=True, name="user.name", value=current_global_config["user.name"])
-    Dolt.config_global(add=True, name="user.email", value=current_global_config["user.email"])
+    Dolt.config_global(
+        add=True, name="user.name", value=current_global_config["user.name"]
+    )
+    Dolt.config_global(
+        add=True, name="user.email", value=current_global_config["user.email"]
+    )
     reset_config = Dolt.config_global(list=True)
     assert reset_config["user.name"] == current_global_config["user.name"]
     assert reset_config["user.email"] == current_global_config["user.email"]
@@ -492,7 +513,8 @@ def test_config_local(init_empty_test_repo):
     local_config = repo.config_local(list=True)
     global_config = Dolt.config_global(list=True)
     assert (
-        local_config["user.name"] == test_username and local_config["user.email"] == test_email
+        local_config["user.name"] == test_username
+        and local_config["user.email"] == test_email
     )
     assert global_config["user.name"] == current_global_config["user.name"]
     assert global_config["user.email"] == current_global_config["user.email"]
