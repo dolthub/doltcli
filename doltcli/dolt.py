@@ -220,10 +220,19 @@ class DoltHubContext:
         tables_to_read: Optional[List[str]] = None,
     ):
         self.db_path = db_path
-        self.path = tempfile.mkdtemp() if not path else path
+        self.path = (
+            os.path.join(tempfile.mkdtemp(), self._get_db_name(db_path)) if not path else path
+        )
         self.remote = remote
         self.dolt = None
         self.tables_to_read = tables_to_read
+
+    @classmethod
+    def _get_db_name(cls, db_path):
+        split = db_path.split("/")
+        if len(split) != 2:
+            raise ValueError(f"Invalid DoltHub path {db_path}")
+        return split[1]
 
     def __enter__(self):
         try:
@@ -232,7 +241,7 @@ class DoltHubContext:
                 f'Dolt database found at path provided ({self.path}), pulling from remote "{self.remote}"'
             )
             dolt.pull(self.remote)
-        except AssertionError:
+        except ValueError:
             if self.db_path is None:
                 raise ValueError("Cannot clone remote data without db_path set")
             if self.tables_to_read:
@@ -243,6 +252,7 @@ class DoltHubContext:
                 dolt = Dolt.clone(self.db_path, self.path)
 
         self.dolt = dolt
+        return self
 
     def __exit__(self, type, value, traceback):
         pass
@@ -969,35 +979,37 @@ class Dolt(DoltT):
         if branch:
             args.extend(["--branch", branch])
 
-        new_dir = Dolt._new_dir_helper(new_dir, remote_url)
-        if not new_dir:
+        clone_dir = Dolt._get_clone_dir(new_dir, None if new_dir else remote_url)
+        if not clone_dir:
             raise ValueError("Unable to infer new_dir")
 
-        args.append(new_dir)
+        args.append(clone_dir)
 
         _execute(args, **kwargs)
 
-        return Dolt(new_dir)
+        return Dolt(clone_dir)
 
     @classmethod
-    def _new_dir_helper(cls, new_dir: Optional[str] = None, remote_url: Optional[str] = None):
+    def _get_clone_dir(
+        cls, new_dir: Optional[str] = None, remote_url: Optional[str] = None
+    ) -> str:
+        """
+        Takes either a new_dir to clone the
+        """
         if not (new_dir or remote_url):
             raise ValueError("Provide either new_dir or remote_url")
-        elif remote_url and not new_dir:
+        elif remote_url:
             split = remote_url.split("/")
-            new_dir = os.path.join(os.getcwd(), split[-1])
-            if os.path.exists(new_dir):
+            inferred_dir = os.path.join(os.getcwd() if not new_dir else new_dir, split[-1])
+            if os.path.exists(inferred_dir):
                 raise DoltDirectoryException(
-                    f"Path already exists: {new_dir}. Cannot create new directory"
+                    f"Path already exists: {inferred_dir}. Cannot create new directory"
                 )
-            os.mkdir(new_dir)
+            return inferred_dir
+        elif new_dir:
             return new_dir
-        elif new_dir and os.path.exists(new_dir):
-            raise DoltDirectoryException(
-                f"PAth already exists: {new_dir}. Cannot create new directory"
-            )
         else:
-            return new_dir
+            raise
 
     @staticmethod
     def read_tables(
@@ -1017,18 +1029,18 @@ class Dolt(DoltT):
         """
         args = ["read-tables"]
 
-        new_dir = Dolt._new_dir_helper(new_dir, remote_url)
-        if not new_dir:
+        clone_dir = Dolt._get_clone_dir(new_dir, None if new_dir else remote_url)
+        if not clone_dir:
             raise ValueError("Unable to infer new_dir")
 
-        args.extend(["--dir", new_dir, remote_url, committish])
+        args.extend(["--dir", clone_dir, remote_url, committish])
 
         if tables:
             args.extend(to_list(tables))
 
         _execute(args, cwd=new_dir)
 
-        return Dolt(new_dir)
+        return Dolt(clone_dir)
 
     def creds_new(self) -> bool:
         """

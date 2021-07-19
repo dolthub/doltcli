@@ -310,14 +310,24 @@ def test_get_dirty_tables(create_test_table):
     # created, staged
     created_staged = "created_staged"
     write_rows(
-        repo, created_staged, initial, import_mode=CREATE, primary_key=["id"], commit=False
+        repo,
+        created_staged,
+        initial,
+        import_mode=CREATE,
+        primary_key=["id"],
+        commit=False,
     )
     repo.add(created_staged)
 
     # created, unstaged
     created_unstaged = "created_unstaged"
     write_rows(
-        repo, created_unstaged, initial, import_mode=CREATE, primary_key=["id"], commit=False
+        repo,
+        created_unstaged,
+        initial,
+        import_mode=CREATE,
+        primary_key=["id"],
+        commit=False,
     )
 
     status = repo.status()
@@ -386,7 +396,10 @@ def test_remote_list(create_test_table):
     repo.remote(add=True, name="origin", url="blah-blah")
     assert repo.remote()[0].name == "origin"
     repo.remote(add=True, name="another-origin", url="blah-blah")
-    assert set([remote.name for remote in repo.remote()]) == {"origin", "another-origin"}
+    assert set([remote.name for remote in repo.remote()]) == {
+        "origin",
+        "another-origin",
+    }
 
 
 def test_checkout_non_existent_branch(doltdb):
@@ -512,14 +525,27 @@ def test_detached_head_cm(doltdb):
     assert sum2["sum"] == "6"
 
 
-def test_new_dir_helper(tmp_path):
+def test_get_clone_dir_no_remote(tmp_path):
     new_dir = os.path.join(tmp_path, "new_dir")
+    res = Dolt._get_clone_dir(new_dir)
+    assert new_dir == res
 
-    assert not os.path.exists(new_dir)
 
-    Dolt._new_dir_helper(new_dir)
+def test_get_clone_dir_remote_only(tmp_path):
+    new_dir = os.path.join(os.getcwd(), "remote")
+    res = Dolt._get_clone_dir(remote_url="some/remote")
+    assert new_dir == res
 
-    assert not os.path.exists(new_dir)
+
+def test_get_clone_dir_new_dir_only(tmp_path):
+    res = Dolt._get_clone_dir("new_dir")
+    assert "new_dir" == res
+
+
+def test_get_clone_dir_new_dir_and_remote(tmp_path):
+    new_dir = os.path.join("foo/bar", "remote")
+    res = Dolt._get_clone_dir(new_dir="foo/bar", remote_url="some/remote")
+    assert new_dir == res
 
 
 def test_clone_new_dir(tmp_path):
