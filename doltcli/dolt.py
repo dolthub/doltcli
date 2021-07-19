@@ -221,9 +221,7 @@ class DoltHubContext:
     ):
         self.db_path = db_path
         self.path = (
-            os.path.join(tempfile.mkdtemp(), self._get_db_name(db_path))
-            if not path
-            else path
+            os.path.join(tempfile.mkdtemp(), self._get_db_name(db_path)) if not path else path
         )
         self.remote = remote
         self.dolt = None
@@ -247,12 +245,8 @@ class DoltHubContext:
             if self.db_path is None:
                 raise ValueError("Cannot clone remote data without db_path set")
             if self.tables_to_read:
-                logger.info(
-                    f"Running read-tables, creating a fresh copy of {self.db_path}"
-                )
-                dolt = Dolt.read_tables(
-                    self.db_path, "master", tables=self.tables_to_read
-                )
+                logger.info(f"Running read-tables, creating a fresh copy of {self.db_path}")
+                dolt = Dolt.read_tables(self.db_path, "master", tables=self.tables_to_read)
             else:
                 logger.info(f"Running clone, cloning remote {self.db_path}")
                 dolt = Dolt.clone(self.db_path, self.path)
@@ -285,9 +279,9 @@ class Dolt(DoltT):
     @property
     def head(self):
         head_hash = "HASHOF('HEAD')"
-        head_commit = self.sql(f"select {head_hash} as hash", result_format="csv")[
-            0
-        ].get("hash", None)
+        head_commit = self.sql(f"select {head_hash} as hash", result_format="csv")[0].get(
+            "hash", None
+        )
         if not head_commit:
             raise ValueError("Head not found")
         return head_commit
@@ -303,9 +297,9 @@ class Dolt(DoltT):
 
     @property
     def active_branch(self):
-        active_branch = self.sql("select active_branch() as a", result_format="csv")[
-            0
-        ].get("a", None)
+        active_branch = self.sql("select active_branch() as a", result_format="csv")[0].get(
+            "a", None
+        )
         if not active_branch:
             raise ValueError("Active branch not found")
         return active_branch
@@ -425,9 +419,7 @@ class Dolt(DoltT):
         :return:
         """
         if not isinstance(tables, (str, list)):
-            raise ValueError(
-                f"tables should be: Union[str, List[str]]; found {type(tables)}"
-            )
+            raise ValueError(f"tables should be: Union[str, List[str]]; found {type(tables)}")
 
         to_reset = to_list(tables)
 
@@ -509,9 +501,7 @@ class Dolt(DoltT):
         merge_conflict_pos = 2
 
         if len(output) == 3 and "Fast-forward" in output[1]:
-            logger.info(
-                f"Completed fast-forward merge of {branch} into {current_branch.name}"
-            )
+            logger.info(f"Completed fast-forward merge of {branch} into {current_branch.name}")
             return
 
         if len(output) == 5 and output[merge_conflict_pos].startswith("CONFLICT"):
@@ -531,9 +521,7 @@ class Dolt(DoltT):
         logger.info(message)
         status = self.status()
 
-        for table in list(status.added_tables.keys()) + list(
-            status.modified_tables.keys()
-        ):
+        for table in list(status.added_tables.keys()) + list(status.modified_tables.keys()):
             self.add(table)
 
         self.commit(message)
@@ -592,9 +580,7 @@ class Dolt(DoltT):
         # do something with result format
         if result_parser is not None:
             if query is None:
-                raise ValueError(
-                    "Must provide a query in order to specify a result format"
-                )
+                raise ValueError("Must provide a query in order to specify a result format")
             args.extend(["--query", query])
 
             try:
@@ -611,9 +597,7 @@ class Dolt(DoltT):
                 shutil.rmtree(d, ignore_errors=True, onerror=None)
         elif result_file is not None:
             if query is None:
-                raise ValueError(
-                    "Must provide a query in order to specify a result format"
-                )
+                raise ValueError("Must provide a query in order to specify a result format")
             args.extend(["--query", query])
 
             args.extend(["--result-format", "csv"])
@@ -621,9 +605,7 @@ class Dolt(DoltT):
             return output_file
         elif result_format in ["csv", "json"]:
             if query is None:
-                raise ValueError(
-                    "Must provide a query in order to specify a result format"
-                )
+                raise ValueError("Must provide a query in order to specify a result format")
             args.extend(["--query", query])
 
             try:
@@ -652,9 +634,7 @@ class Dolt(DoltT):
         """
         res = read_rows_sql(
             self,
-            sql=Commit.get_log_table_query(
-                number=number, commit=commit, head=self.head
-            ),
+            sql=Commit.get_log_table_query(number=number, commit=commit, head=self.head),
         )
         commits = Commit.parse_dolt_log_table(res)
         return commits
@@ -848,9 +828,7 @@ class Dolt(DoltT):
         :return:
         """
         if tables and branch:
-            raise ValueError(
-                "No tables may be provided when creating a branch with checkout"
-            )
+            raise ValueError("No tables may be provided when creating a branch with checkout")
         args = ["checkout"]
 
         if branch:
@@ -1022,9 +1000,7 @@ class Dolt(DoltT):
             raise ValueError("Provide either new_dir or remote_url")
         elif remote_url:
             split = remote_url.split("/")
-            inferred_dir = os.path.join(
-                os.getcwd() if not new_dir else new_dir, split[-1]
-            )
+            inferred_dir = os.path.join(os.getcwd() if not new_dir else new_dir, split[-1])
             if os.path.exists(inferred_dir):
                 raise DoltDirectoryException(
                     f"Path already exists: {inferred_dir}. Cannot create new directory"
@@ -1122,9 +1098,7 @@ class Dolt(DoltT):
 
         return creds
 
-    def creds_check(
-        self, endpoint: Optional[str] = None, creds: Optional[str] = None
-    ) -> bool:
+    def creds_check(self, endpoint: Optional[str] = None, creds: Optional[str] = None) -> bool:
         """
         Check that credentials authenticate with the specified endpoint, return True if authorized, False otherwise.
         :param endpoint: the endpoint to check
@@ -1318,9 +1292,7 @@ class Dolt(DoltT):
                 if not line:
                     pass
                 split = line.lstrip().split()
-                tables.append(
-                    Table(name=split[0], root=split[1], row_cnt=int(split[2]))
-                )
+                tables.append(Table(name=split[0], root=split[1], row_cnt=int(split[2])))
 
         if system_pos:
             for line in output[system_pos:]:

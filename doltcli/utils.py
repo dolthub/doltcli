@@ -20,9 +20,7 @@ def set_dolt_path(path: str):
     DOLT_PATH = path
 
 
-def read_columns(
-    dolt: DoltT, table: str, as_of: Optional[str] = None
-) -> Dict[str, list]:
+def read_columns(dolt: DoltT, table: str, as_of: Optional[str] = None) -> Dict[str, list]:
     return read_columns_sql(dolt, get_read_table_asof_query(table, as_of))
 
 
@@ -205,10 +203,7 @@ def _import_helper(
         dolt.execute(args + [fname])
 
         if commit:
-            msg = (
-                commit_message
-                or f"Committing write to table {table} in {import_mode} mode"
-            )
+            msg = commit_message or f"Committing write to table {table} in {import_mode} mode"
             dolt.add(table)
             dolt.commit(msg, date=commit_date)
     finally:

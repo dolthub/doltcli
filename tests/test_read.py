@@ -20,9 +20,7 @@ TEST_DATA_INITIAL = [
     {"name": "Oblonksy", "adjective": "buffoon", "id": "3", "date_of_death": ""},
 ]
 
-TEST_DATA_UPDATE = [
-    {"name": "Levin", "adjective": "tiresome", "id": "4", "date_of_death": ""}
-]
+TEST_DATA_UPDATE = [{"name": "Levin", "adjective": "tiresome", "id": "4", "date_of_death": ""}]
 
 TEST_DATA_COMBINED = TEST_DATA_INITIAL + TEST_DATA_UPDATE
 
