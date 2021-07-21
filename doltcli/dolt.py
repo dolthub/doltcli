@@ -115,7 +115,7 @@ class Commit(CommitT):
     """
 
     def __str__(self):
-        return f"{self.ref}: {self.author} @ {self.ts}, {self.message}"
+        return f"{self.ref}: {self.author} @ {self.timestamp}, {self.message}"
 
     def is_merge(self):
         return isinstance(self.parents, tuple)
