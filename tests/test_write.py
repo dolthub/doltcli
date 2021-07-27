@@ -1,7 +1,7 @@
 import pytest
 
-from doltcli import CREATE, read_rows, write_columns, write_rows
-from tests.helpers import compare_rows_helper
+from doltcli import CREATE, read_rows, write_columns, write_rows, DoltException, write_file
+from tests.helpers import compare_rows_helper, write_dict_to_csv
 
 # Note that we use string values here as serializing via CSV does preserve type information in any meaningful way
 TEST_ROWS = [
@@ -45,3 +45,32 @@ def test_write_columns_uneven(init_empty_test_repo):
     repo = init_empty_test_repo
     with pytest.raises(ValueError):
         write_columns(repo, "players", DICT_OF_LISTS_UNEVEN_LENGTHS, CREATE, ["name"])
+
+
+def test_write_file(init_empty_test_repo, tmp_path):
+    tempfile = tmp_path / "test.csv"
+    TEST_ROWS = [
+        {"name": "Anna", "adjective": "tragic", "id": "1", "date_of_death": "1877-01-01"},
+        {"name": "Vronksy", "adjective": "honorable", "id": "2", "date_of_death": ""},
+        {"name": "Vronksy", "adjective": "honorable", "id": "2", "date_of_death": ""},
+    ]
+    write_dict_to_csv(TEST_ROWS, tempfile)
+    dolt = init_empty_test_repo
+    with pytest.raises(DoltException):
+        write_file(
+            dolt=dolt,
+            table="characters",
+            file_handle=open(tempfile),
+            import_mode=CREATE,
+            primary_key=["id"],
+        )
+    write_file(
+        dolt=dolt,
+        table="characters",
+        file_handle=open(tempfile),
+        import_mode=CREATE,
+        primary_key=["id"],
+        do_continue=True,
+    )
+    actual = read_rows(dolt, "characters")
+    compare_rows_helper(TEST_ROWS[:2], actual)
