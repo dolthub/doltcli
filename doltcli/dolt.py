@@ -898,7 +898,7 @@ class Dolt(DoltT):
         **kwargs,
     ):
         """
-        Push the to the specified remote. If set_upstream is provided will create an upstream reference of all branches
+        Push the branch to the specified remote. If set_upstream is provided will create an upstream reference of all branches
         in a repo.
         :param remote:
         :param refspec: optionally specify a branch to push
