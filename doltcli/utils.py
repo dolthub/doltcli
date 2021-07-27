@@ -69,6 +69,7 @@ def write_file(
     commit: Optional[bool] = False,
     commit_message: Optional[str] = None,
     commit_date: Optional[datetime.datetime] = None,
+    do_continue: Optional[bool] = False,
 ):
     def writer(filepath: str):
         with open(filepath, "w", newline="") as f:
@@ -83,6 +84,7 @@ def write_file(
         commit=commit,
         commit_message=commit_message,
         commit_date=commit_date,
+        do_continue=do_continue,
     )
 
 
@@ -95,6 +97,7 @@ def write_columns(
     commit: Optional[bool] = False,
     commit_message: Optional[str] = None,
     commit_date: Optional[datetime.datetime] = None,
+    do_continue: Optional[bool] = False,
 ):
     """
 
@@ -128,6 +131,7 @@ def write_columns(
         commit=commit,
         commit_message=commit_message,
         commit_date=commit_date,
+        do_continue=do_continue,
     )
 
 
@@ -140,6 +144,7 @@ def write_rows(
     commit: Optional[bool] = False,
     commit_message: Optional[str] = None,
     commit_date: Optional[datetime.datetime] = None,
+    do_continue: Optional[bool] = False,
 ):
     """
 
@@ -174,6 +179,7 @@ def write_rows(
         commit=commit,
         commit_message=commit_message,
         commit_date=commit_date,
+        do_continue=do_continue,
     )
 
 
@@ -183,6 +189,7 @@ def _import_helper(
     write_import_file: Callable[[str], None],
     import_mode: Optional[str] = None,
     primary_key: Optional[List[str]] = None,
+    do_continue: Optional[bool] = False,
     commit: Optional[bool] = False,
     commit_message: Optional[str] = None,
     commit_date: Optional[datetime.datetime] = None,
@@ -199,6 +206,8 @@ def _import_helper(
         args = ["table", "import", table] + import_flags
         if primary_key:
             args += ["--pk={}".format(",".join(primary_key))]
+        if do_continue is True:
+            args += ["--continue"]
 
         dolt.execute(args + [fname])
 
