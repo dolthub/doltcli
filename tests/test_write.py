@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from doltcli import (
@@ -100,6 +102,7 @@ def test_write_file(init_empty_test_repo, tmp_path):
         primary_key=["id"],
         do_continue=True,
     )
+    assert os.path.exists(tmp_path)
     actual = read_rows(dolt, "characters")
     compare_rows_helper(TEST_ROWS[:2], actual)
 
