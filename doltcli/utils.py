@@ -6,6 +6,7 @@ import os
 import tempfile
 from collections import defaultdict
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Union
 
 from .types import DoltT
@@ -61,7 +62,8 @@ IMPORT_MODES_TO_FLAGS = {
 def write_file(
     dolt: DoltT,
     table: str,
-    file_handle: io.StringIO,
+    file_handle: Optional[io.TextIOBase] = None,
+    file: Union[str, Path, None] = None,
     # TODO what to do about this?
     filetype: str = "csv",
     import_mode: Optional[str] = None,
@@ -71,9 +73,25 @@ def write_file(
     commit_date: Optional[datetime.datetime] = None,
     do_continue: Optional[bool] = False,
 ):
-    def writer(filepath: str):
-        with open(filepath, "w", newline="") as f:
-            f.writelines(file_handle.readlines())
+    if file_handle is not None and file is not None:
+        raise ValueError("Specify one of: file, file_handle")
+    elif file_handle is None and file is None:
+        raise ValueError("Specify one of: file, file_handle")
+    elif file_handle is not None:
+
+        def writer(filepath: str):
+            if not isinstance(file_handle, io.TextIOBase):
+                raise ValueError(
+                    f"file_handle expected type io.StringIO; found: {type(file_handle)}"
+                )
+            with open(filepath, "w", newline="") as f:
+                f.writelines(file_handle.readlines())
+            return filepath
+
+    elif file is not None:
+
+        def writer(filepath: str):
+            return str(file)
 
     _import_helper(
         dolt=dolt,
@@ -121,6 +139,7 @@ def write_columns(
             rows = columns_to_rows(columns)
             csv_writer.writeheader()
             csv_writer.writerows(rows)
+        return filepath
 
     _import_helper(
         dolt=dolt,
@@ -163,12 +182,12 @@ def write_rows(
         with open(filepath, "w", newline="") as f:
             fieldnames: Set[str] = set()
             for row in rows:
-                print(row)
                 fieldnames = fieldnames.union(set(row.keys()))
 
             csv_writer = csv.DictWriter(f, fieldnames)
             csv_writer.writeheader()
             csv_writer.writerows(rows)
+        return filepath
 
     _import_helper(
         dolt=dolt,
@@ -186,7 +205,7 @@ def write_rows(
 def _import_helper(
     dolt: DoltT,
     table: str,
-    write_import_file: Callable[[str], None],
+    write_import_file: Callable[[str], str],
     import_mode: Optional[str] = None,
     primary_key: Optional[List[str]] = None,
     do_continue: Optional[bool] = False,
@@ -202,7 +221,7 @@ def _import_helper(
     fname = tempfile.mktemp(suffix=".csv")
     import_flags = IMPORT_MODES_TO_FLAGS[import_mode]
     try:
-        write_import_file(fname)
+        fname = write_import_file(fname)
         args = ["table", "import", table] + import_flags
         if primary_key:
             args += ["--pk={}".format(",".join(primary_key))]

@@ -21,6 +21,7 @@ from .utils import (
     write_rows,
 )
 
+global logger
 logger = logging.getLogger(__name__)
 
 
