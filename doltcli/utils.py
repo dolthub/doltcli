@@ -72,6 +72,7 @@ def write_file(
     commit_message: Optional[str] = None,
     commit_date: Optional[datetime.datetime] = None,
     do_continue: Optional[bool] = False,
+    do_gc: Optional[bool] = True,
 ):
     if file_handle is not None and file is not None:
         raise ValueError("Specify one of: file, file_handle")
@@ -103,6 +104,7 @@ def write_file(
         commit_message=commit_message,
         commit_date=commit_date,
         do_continue=do_continue,
+        do_gc=do_gc,
     )
 
 
@@ -116,6 +118,7 @@ def write_columns(
     commit_message: Optional[str] = None,
     commit_date: Optional[datetime.datetime] = None,
     do_continue: Optional[bool] = False,
+    do_gc: Optional[bool] = True,
 ):
     """
 
@@ -151,6 +154,7 @@ def write_columns(
         commit_message=commit_message,
         commit_date=commit_date,
         do_continue=do_continue,
+        do_gc=do_gc,
     )
 
 
@@ -164,6 +168,7 @@ def write_rows(
     commit_message: Optional[str] = None,
     commit_date: Optional[datetime.datetime] = None,
     do_continue: Optional[bool] = False,
+    do_gc: Optional[bool] = True,
 ):
     """
 
@@ -199,6 +204,7 @@ def write_rows(
         commit_message=commit_message,
         commit_date=commit_date,
         do_continue=do_continue,
+        do_gc=do_gc,
     )
 
 
@@ -209,6 +215,7 @@ def _import_helper(
     import_mode: Optional[str] = None,
     primary_key: Optional[List[str]] = None,
     do_continue: Optional[bool] = False,
+    do_gc: Optional[bool] = True,
     commit: Optional[bool] = False,
     commit_message: Optional[str] = None,
     commit_date: Optional[datetime.datetime] = None,
@@ -227,6 +234,8 @@ def _import_helper(
             args += ["--pk={}".format(",".join(primary_key))]
         if do_continue is True:
             args += ["--continue"]
+        if do_gc is False:
+            args += ["--no-gc"]
 
         dolt.execute(args + [import_file])
 

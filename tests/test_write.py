@@ -72,6 +72,7 @@ def test_write_file_handle(init_empty_test_repo, tmp_path):
             file_handle=open(tempfile),
             import_mode=CREATE,
             primary_key=["id"],
+            do_gc=False,
         )
     write_file(
         dolt=dolt,
