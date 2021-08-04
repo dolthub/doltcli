@@ -182,7 +182,6 @@ def write_rows(
         with open(filepath, "w", newline="") as f:
             fieldnames: Set[str] = set()
             for row in rows:
-                print(row)
                 fieldnames = fieldnames.union(set(row.keys()))
 
             csv_writer = csv.DictWriter(f, fieldnames)
@@ -222,9 +221,7 @@ def _import_helper(
     fname = tempfile.mktemp(suffix=".csv")
     import_flags = IMPORT_MODES_TO_FLAGS[import_mode]
     try:
-        print("before", fname)
         fname = write_import_file(fname)
-        print("after", fname)
         args = ["table", "import", table] + import_flags
         if primary_key:
             args += ["--pk={}".format(",".join(primary_key))]

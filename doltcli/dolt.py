@@ -71,7 +71,6 @@ def _execute(args: List[str], cwd: Optional[str] = None, outfile: Optional[str] 
 
     _args = [DOLT_PATH] + args
     str_args = " ".join(" ".join(args).split())
-    print(logger)
     logger.info(str_args)
     if outfile:
         with open(outfile, "w", newline="") as f:
