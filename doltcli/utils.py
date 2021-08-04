@@ -221,14 +221,14 @@ def _import_helper(
     fname = tempfile.mktemp(suffix=".csv")
     import_flags = IMPORT_MODES_TO_FLAGS[import_mode]
     try:
-        fname = write_import_file(fname)
+        import_file = write_import_file(fname)
         args = ["table", "import", table] + import_flags
         if primary_key:
             args += ["--pk={}".format(",".join(primary_key))]
         if do_continue is True:
             args += ["--continue"]
 
-        dolt.execute(args + [fname])
+        dolt.execute(args + [import_file])
 
         if commit:
             msg = commit_message or f"Committing write to table {table} in {import_mode} mode"
