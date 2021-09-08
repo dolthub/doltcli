@@ -77,7 +77,7 @@ def _execute(args: List[str], cwd: Optional[str] = None, outfile: Optional[str] 
             proc = Popen(args=_args, cwd=cwd, stdout=f, stderr=PIPE)
     else:
         proc = Popen(args=_args, cwd=cwd, stdout=PIPE, stderr=PIPE)
-    out, err = (val.decode('utf8') for val in proc.communicate())
+    out, err = (val.decode("utf8") if val else "" for val in proc.communicate())
     exitcode = proc.returncode
 
     if exitcode != 0:
