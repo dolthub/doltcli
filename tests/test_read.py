@@ -57,5 +57,5 @@ def test_read_columns(with_initial_test_data):
     first_write = read_columns(dolt, TEST_TABLE, first_commit)
     compare_rows_helper(columns_to_rows(first_write), TEST_DATA_INITIAL)
     second_write = columns_to_rows(read_columns(dolt, TEST_TABLE, second_commit))
-    sorted(second_write, key=lambda x: x["id"])
+    sorted(second_write, key=lambda x: int(x["id"]))
     compare_rows_helper(second_write, TEST_DATA_COMBINED)
