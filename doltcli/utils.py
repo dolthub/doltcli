@@ -254,6 +254,8 @@ def _get_import_mode_and_flags(
     import_modes = IMPORT_MODES_TO_FLAGS.keys()
     if import_mode and import_mode not in import_modes:
         raise ValueError(f"update_mode must be one of: {import_modes}")
+    elif import_mode:
+        return import_mode
     else:
         if table in [table.name for table in dolt.ls()]:
             logger.info(f'No import mode specified, table exists, using "{UPDATE}"')
