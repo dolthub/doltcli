@@ -96,7 +96,7 @@ def test_working(doltdb):
 
 def test_active_branch(create_test_table):
     repo, test_table = create_test_table
-    assert "master" == repo.active_branch
+    assert "main" == repo.active_branch
 
 
 def test_merge_fast_forward(create_test_table):
@@ -105,7 +105,7 @@ def test_merge_fast_forward(create_test_table):
     message_two = "Other branch"
     message_merge = "merge"
 
-    # commit the current working set to master
+    # commit the current working set to main
     repo.add(test_table)
     repo.commit(message_one)
 
@@ -119,7 +119,7 @@ def test_merge_fast_forward(create_test_table):
     repo.commit(message_two)
 
     # merge
-    repo.checkout("master")
+    repo.checkout("main")
     repo.merge("other", message_merge)
 
     commits = list(repo.log().values())
@@ -137,14 +137,14 @@ def test_merge_conflict(create_test_table):
     message_two = "Base branch new data"
     message_three = "Other branch"
     message_merge = "merge"
-    # commit the current working set to master
+    # commit the current working set to main
     repo.add(test_table)
     repo.commit(message_one)
 
     # create another branch from the working set
     repo.branch("other")
 
-    # create a non-trivial commit against `master`
+    # create a non-trivial commit against `main`
     repo.sql('INSERT INTO `test_players` (`name`, `id`) VALUES ("Stan", 4)')
     repo.add(test_table)
     repo.commit(message_two)
@@ -156,13 +156,13 @@ def test_merge_conflict(create_test_table):
     repo.commit(message_three)
 
     # merge
-    repo.checkout("master")
+    repo.checkout("main")
     repo.merge("other", message_merge)
 
     commits = list(repo.log().values())
-    head_of_master = commits[0]
+    head_of_main = commits[0]
 
-    assert head_of_master.message == message_two
+    assert head_of_main.message == message_two
 
 
 def test_dolt_log(create_test_table):
@@ -191,7 +191,7 @@ def test_dolt_log_scope(create_test_table):
     repo.sql('INSERT INTO `test_players` (`name`, `id`) VALUES ("Stan", 4)')
     repo.add(test_table)
     repo.commit(message_two)
-    repo.checkout("master")
+    repo.checkout("main")
     commits = list(repo.log().values())
     current_commit = commits[0]
     previous_commit = commits[1]
@@ -244,14 +244,14 @@ def test_dolt_log_merge_commit(create_test_table):
     message_two = "Base branch new data"
     message_three = "Other branch"
     message_merge = "merge"
-    # commit the current working set to master
+    # commit the current working set to main
     repo.add(test_table)
     repo.commit(message_one)
 
     # create another branch from the working set
     repo.branch("other")
 
-    # create a non-trivial commit against `master`
+    # create a non-trivial commit against `main`
     repo.sql('INSERT INTO `test_players` (`name`, `id`) VALUES ("Stan", 4)')
     repo.add(test_table)
     repo.commit(message_two)
@@ -263,7 +263,7 @@ def test_dolt_log_merge_commit(create_test_table):
     repo.commit(message_three)
 
     # merge
-    repo.checkout("master")
+    repo.checkout("main")
     repo.merge("other", message_merge)
 
     commits = list(repo.log().values())
@@ -348,14 +348,14 @@ def test_checkout_with_tables(create_test_table):
 def test_branch(create_test_table):
     repo, _ = create_test_table
     active_branch, branches = repo.branch()
-    assert [active_branch.name] == [branch.name for branch in branches] == ["master"]
+    assert [active_branch.name] == [branch.name for branch in branches] == ["main"]
 
     repo.checkout("dosac", checkout_branch=True)
-    repo.checkout("master")
+    repo.checkout("main")
     next_active_branch, next_branches = repo.branch()
     assert (
-        set(branch.name for branch in next_branches) == {"master", "dosac"}
-        and next_active_branch.name == "master"
+        set(branch.name for branch in next_branches) == {"main", "dosac"}
+        and next_active_branch.name == "main"
     )
 
     repo.checkout("dosac")
@@ -367,22 +367,22 @@ def test_branch(create_test_table):
 def test_branch_delete(create_test_table):
     repo, _ = create_test_table
 
-    _verify_branches(repo, ["master"])
+    _verify_branches(repo, ["main"])
 
     repo.checkout("dosac", checkout_branch=True)
-    repo.checkout("master")
-    _verify_branches(repo, ["master", "dosac"])
+    repo.checkout("main")
+    _verify_branches(repo, ["main", "dosac"])
 
     repo.branch("dosac", delete=True)
-    _verify_branches(repo, ["master"])
+    _verify_branches(repo, ["main"])
 
 
 def test_branch_move(create_test_table):
     repo, _ = create_test_table
 
-    _verify_branches(repo, ["master"])
+    _verify_branches(repo, ["main"])
 
-    repo.branch("master", move=True, new_branch="dosac")
+    repo.branch("main", move=True, new_branch="dosac")
     _verify_branches(repo, ["dosac"])
 
 
@@ -404,7 +404,7 @@ def test_remote_list(create_test_table):
 
 def test_checkout_non_existent_branch(doltdb):
     repo = Dolt(doltdb)
-    repo.checkout("master")
+    repo.checkout("main")
 
 
 def test_ls(create_test_table):
@@ -626,7 +626,7 @@ def test_set_dolt_path_error(doltdb):
 def test_no_checkout_error(init_empty_test_repo):
     dolt = init_empty_test_repo
 
-    dolt.checkout(branch="master", error=False)
+    dolt.checkout(branch="main", error=False)
 
 
 def test_reset(doltdb):
@@ -648,3 +648,9 @@ def test_reset_errors(doltdb):
         db.reset(tables="t1", soft=True)
     with pytest.raises(ValueError):
         db.reset(tables={"t1": True})
+
+
+def test_repo_name_trailing_slash(tmp_path):
+    repo_path, repo_data_dir = get_repo_path_tmp_path(tmp_path)
+    assert Dolt.init(str(repo_path) + "/").repo_name == "test_repo_name_trailing_slash0"
+    shutil.rmtree(repo_data_dir)

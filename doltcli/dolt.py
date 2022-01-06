@@ -275,7 +275,7 @@ class Dolt(DoltT):
 
     @property
     def repo_name(self):
-        return os.path.split(str(self.repo_dir))[-1].replace("-", "_")
+        return os.path.basename(os.path.normpath(self.repo_dir)).replace("-", "_")
 
     @property
     def head(self):
