@@ -648,3 +648,9 @@ def test_reset_errors(doltdb):
         db.reset(tables="t1", soft=True)
     with pytest.raises(ValueError):
         db.reset(tables={"t1": True})
+
+
+def test_repo_name_trailing_slash(tmp_path):
+    repo_path, repo_data_dir = get_repo_path_tmp_path(tmp_path)
+    assert Dolt.init(str(repo_path) + "/").repo_name == "test_repo_name_trailing_slash0"
+    shutil.rmtree(repo_data_dir)
