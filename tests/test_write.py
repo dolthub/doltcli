@@ -35,6 +35,36 @@ def test_write_rows(init_empty_test_repo):
     compare_rows_helper(TEST_ROWS, actual)
 
 
+def test_update_rows(init_empty_test_repo):
+    dolt = init_empty_test_repo
+    write_rows(dolt, "characters", TEST_ROWS, CREATE, ["id"])
+
+    new_row = {"name": "dick butkus", "adjective": "buffoon", "id": "3", "date_of_death": ""}
+
+    write_rows(dolt, "characters", [new_row], "update", ["id"])
+    actual = read_rows(dolt, "characters")
+    exp = [
+        {"name": "Anna", "adjective": "tragic", "id": "1", "date_of_death": "1877-01-01"},
+        {"name": "Vronksy", "adjective": "honorable", "id": "2", "date_of_death": ""},
+        {"name": "dick butkus", "adjective": "buffoon", "id": "3", "date_of_death": ""},
+    ]
+    compare_rows_helper(exp, actual)
+
+
+def test_replace_rows(init_empty_test_repo):
+    dolt = init_empty_test_repo
+    write_rows(dolt, "characters", TEST_ROWS, CREATE, ["id"])
+
+    new_row = {"name": "dick butkus", "adjective": "buffoon", "id": "3", "date_of_death": ""}
+
+    write_rows(dolt, "characters", [new_row], "replace", ["id"])
+    actual = read_rows(dolt, "characters")
+    exp = [
+        {"name": "dick butkus", "adjective": "buffoon", "id": "3", "date_of_death": ""},
+    ]
+    compare_rows_helper(exp, actual)
+
+
 def test_write_columns(init_empty_test_repo):
     dolt = init_empty_test_repo
     write_columns(dolt, "characters", TEST_COLUMNS, CREATE, ["id"])
