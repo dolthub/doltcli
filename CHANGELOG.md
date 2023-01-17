@@ -20,7 +20,7 @@ This document follows the conventions laid out in [Keep a CHANGELOG](https://kee
 
 ### Added
 [//]: # "For new features that got added"
-- 
+- Add `track` option to checkout command to checkout upstream branches.
 
 ### Changed
 [//]: # "For behavior that has been changed"
