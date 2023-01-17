@@ -824,6 +824,7 @@ class Dolt(DoltT):
         tables: Optional[Union[str, List[str]]] = None,
         checkout_branch: bool = False,
         start_point: Optional[str] = None,
+        track: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -833,6 +834,7 @@ class Dolt(DoltT):
         :param tables: table or tables to checkout
         :param checkout_branch: branch to checkout
         :param start_point: tip of new branch
+        :param track: the upstream branch to track
         :return:
         """
         if tables and branch:
@@ -848,6 +850,10 @@ class Dolt(DoltT):
 
         if tables:
             args.append(" ".join(to_list(tables)))
+
+        if track is not None:
+            args.append("--track")
+            args.append(track)
 
         self.execute(args, **kwargs)
 
