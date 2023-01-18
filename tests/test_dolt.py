@@ -11,7 +11,6 @@ from doltcli import (
     CREATE,
     UPDATE,
     Dolt,
-    DoltException,
     _execute,
     detach_head,
     read_rows,
@@ -44,7 +43,7 @@ def create_test_data(tmp_path) -> str:
 
 @pytest.fixture
 def create_test_table(init_empty_test_repo, create_test_data) -> Tuple[Dolt, str]:
-    repo, test_data_path = init_empty_test_repo, create_test_data
+    repo, _ = init_empty_test_repo, create_test_data
     repo.sql(
         query="""
         CREATE TABLE `test_players` (
@@ -194,13 +193,13 @@ def test_dolt_log_scope(create_test_table):
     repo.checkout("main")
     commits = list(repo.log().values())
     current_commit = commits[0]
-    previous_commit = commits[1]
+    _ = commits[1]
     assert current_commit.message == message_one
 
 
 def test_dolt_log_number(create_test_table):
     repo, test_table = create_test_table
-    message_one = "Julianna, the very serious intellectual"
+    _ = "Julianna, the very serious intellectual"
     message_two = "Added Stan the Man"
     repo.add(test_table)
     repo.commit("Julianna, the very serious intellectual")
@@ -222,7 +221,7 @@ def test_dolt_single_commit_log(create_test_table):
 
 def test_dolt_log_commit(create_test_table):
     repo, test_table = create_test_table
-    message_one = "Julianna, the very serious intellectual"
+    _ = "Julianna, the very serious intellectual"
     message_two = "Added Stan the Man"
     repo.add(test_table)
     repo.commit("Julianna, the very serious intellectual")
@@ -572,7 +571,7 @@ def test_dolt_sql_file(init_empty_test_repo):
 
     with tempfile.NamedTemporaryFile() as f:
         write_rows(dolt, "test_table", BASE_TEST_ROWS, commit=True)
-        result = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_file=f.name)
+        _ = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_file=f.name)
         res = read_csv_to_dict(f.name)
         compare_rows_helper(BASE_TEST_ROWS, res)
 

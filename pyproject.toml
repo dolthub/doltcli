@@ -1,21 +1,3 @@
-[tool.poetry]
-name = "doltcli"
-version = "0.1.17"
-description = "Slim Python interface for Dolt's CLI API."
-authors = ["Max Hoffman <max@dolthub.com>", "Oscar Batori <oscar@dolthub.com>"]
-
-[tool.poetry.dependencies]
-python = ">=3.6.2,<4.0"
-dataclasses = {version = ">=0.6", markers = "python_version < \"3.7\""}
-
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.2"
-black = "^21.10b0"
-mypy = "0.800"
-pytest-cov = "^2.11.1"
-isort = "^5.9.1"
-flake8 = "^3.9.2"
-
 [tool.isort]
 profile = "black"
 line_length = 100
@@ -34,11 +16,11 @@ exclude = '''
 '''
 
 [tool.flake8]
-ignore = ['W504', 'E501', 'F407', 'W503', 'E203']
+ignore = ['W504', 'E501', 'F407', 'W503', 'E203', 'C901']
 max-line-length = 100
 max-complexity = 18
 select = ['B', 'C', 'E', 'F', 'W', 'T4', 'B9']
-exclude = ['build', '.venv']
+exclude = ['.venv']
 per-file-ignores = ['**/__init__.py:F401']
 
 [tool.mypy]
@@ -46,7 +28,3 @@ python_version = "3.10"
 warn_unused_configs = true
 
 ignore_missing_imports = true
-
-[build-system]
-requires = ["poetry-core>=1.0.0a5"]
-build-backend = "poetry.core.masonry.api"

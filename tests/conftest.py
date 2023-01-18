@@ -41,11 +41,6 @@ def get_repo_path_tmp_path(path: str, subpath: str = None) -> Tuple[str, str]:
 
 
 @pytest.fixture()
-def with_test_data_initial_file(tmp_path):
-    return _test_data_to_file(tmp_path, TEST_DATA_INITIAL)
-
-
-@pytest.fixture()
 def with_test_table(init_empty_test_repo):
     dolt = init_empty_test_repo
     dolt.sql(
@@ -54,7 +49,7 @@ def with_test_table(init_empty_test_repo):
             `name` VARCHAR(32),
             `adjective` VARCHAR(32),
             `id` INT NOT NULL,
-            `date_of_death` DATETIME, 
+            `date_of_death` DATETIME,
             PRIMARY KEY (`id`)
         );
     """

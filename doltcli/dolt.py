@@ -10,16 +10,7 @@ from subprocess import PIPE, Popen
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from .types import BranchT, CommitT, DoltT, KeyPairT, RemoteT, StatusT, TableT
-from .utils import (
-    read_columns,
-    read_columns_sql,
-    read_rows,
-    read_rows_sql,
-    to_list,
-    write_columns,
-    write_file,
-    write_rows,
-)
+from .utils import read_rows_sql, to_list
 
 global logger
 logger = logging.getLogger(__name__)
@@ -538,7 +529,7 @@ class Dolt(DoltT):
         result_file: Optional[str] = None,
         result_parser: Optional[Callable[[str], Any]] = None,
         **kwargs,
-    ):
+    ):  # noqa: C901
         """
         Execute a SQL query, using the options to dictate how it is executed, and where the output goes.
         :param query: query to be executed
@@ -552,6 +543,7 @@ class Dolt(DoltT):
         :param result_parser:
         :return:
         """
+
         args = ["sql"]
 
         if list_saved:
