@@ -89,21 +89,21 @@ class DoltT:
     print_output: bool = False
 
     @staticmethod
-    def init(repo_dir: Optional[str] = ...) -> "DoltT":
-        ...
+    def init(repo_dir: Optional[str] = None) -> "DoltT":
+        raise NotImplementedError()
 
-    def execute(self, args: List[str], print_output: Optional[bool] = ...):
-        ...
+    def execute(self, args: List[str], print_output: Optional[bool] = None) -> str:
+        raise NotImplementedError()
 
     def status(self) -> "StatusT":
-        ...
+        raise NotImplementedError()
 
     @staticmethod
     def version() -> str:
-        ...
+        raise NotImplementedError()
 
     def add(self, tables: Union[str, List[str]]) -> "StatusT":
-        ...
+        raise NotImplementedError()
 
     def reset(
         self,
@@ -111,7 +111,7 @@ class DoltT:
         hard: bool = False,
         soft: bool = False,
     ) -> None:
-        ...
+        raise NotImplementedError()
 
     def commit(
         self,
@@ -119,7 +119,7 @@ class DoltT:
         allow_empty: bool = False,
         date: Optional[datetime.datetime] = ...,
     ) -> None:
-        ...
+        raise NotImplementedError()
 
     def merge(
         self,
@@ -127,7 +127,7 @@ class DoltT:
         message: Optional[str] = ...,
         squash: bool = False,
     ) -> None:
-        ...
+        raise NotImplementedError()
 
     def sql(
         self,
@@ -142,16 +142,16 @@ class DoltT:
         result_file: Optional[str] = None,
         result_parser: Optional[Callable[[str], Any]] = None,
     ) -> List:
-        ...
+        raise NotImplementedError()
 
-    def log(self, number: Optional[int] = ..., commit: Optional[str] = ...) -> Dict:
-        ...
+    def log(self, number: Optional[int] = None, commit: Optional[str] = None) -> Dict:
+        raise NotImplementedError()
 
     def diff(
         self,
-        commit: Optional[str] = ...,
-        other_commit: Optional[str] = ...,
-        tables: Optional[Union[str, List[str]]] = ...,
+        commit: Optional[str] = None,
+        other_commit: Optional[str] = None,
+        tables: Optional[Union[str, List[str]]] = None,
         data: bool = False,
         schema: bool = False,  # can we even support this?
         summary: bool = False,
@@ -159,61 +159,61 @@ class DoltT:
         where: Optional[str] = None,
         limit: Optional[int] = None,
     ) -> None:
-        ...
+        raise NotImplementedError()
 
     def blame(self, table_name: str, rev: Optional[str] = None) -> None:
-        ...
+        raise NotImplementedError()
 
     def branch(
         self,
-        branch_name: Optional[str] = ...,
-        start_point: Optional[str] = ...,
-        new_branch: Optional[str] = ...,
+        branch_name: Optional[str] = None,
+        start_point: Optional[str] = None,
+        new_branch: Optional[str] = None,
         force: bool = False,
         delete: bool = False,
         copy: bool = False,
         move: bool = False,
     ) -> None:
-        ...
+        raise NotImplementedError()
 
     def checkout(
         self,
-        branch: Optional[str] = ...,
-        tables: Optional[Union[str, List[str]]] = ...,
+        branch: Optional[str] = None,
+        tables: Optional[Union[str, List[str]]] = None,
         checkout_branch: bool = False,
-        start_point: Optional[str] = ...,
+        start_point: Optional[str] = None,
     ) -> None:
-        ...
+        raise NotImplementedError()
 
     def remote(
         self,
         add: bool = False,
-        name: Optional[str] = ...,
-        url: Optional[str] = ...,
+        name: Optional[str] = None,
+        url: Optional[str] = None,
         remove: bool = False,
     ) -> None:
-        ...
+        raise NotImplementedError()
 
     def pull(self, remote: str = "origin") -> None:
-        ...
+        raise NotImplementedError()
 
     def fetch(
         self,
         remote: str = "origin",
-        refspecs: Union[str, List[str]] = ...,
+        refspecs: Optional[Union[str, List[str]]] = None,
         force: bool = False,
         **kwargs: Any,
     ) -> None:
-        ...
+        raise NotImplementedError()
 
     @staticmethod
     def clone(
         remote_url: str,
-        new_dir: Optional[str] = ...,
-        remote: Optional[str] = ...,
-        branch: Optional[str] = ...,
+        new_dir: Optional[str] = None,
+        remote: Optional[str] = None,
+        branch: Optional[str] = None,
     ) -> "DoltT":
-        ...
+        raise NotImplementedError()
 
     def ls(self, system: bool = False, all: bool = False) -> List[TableT]:
-        ...
+        raise NotImplementedError()

@@ -300,7 +300,7 @@ class Dolt(DoltT):
         self,
         args: List[str],
         print_output: Optional[bool] = None,
-        stdout_to_file: str = None,
+        stdout_to_file: Optional[str] = None,
         error: bool = True,
     ) -> str:
         """
@@ -438,7 +438,7 @@ class Dolt(DoltT):
         self,
         message: Optional[str] = None,
         allow_empty: bool = False,
-        date: datetime.datetime = None,
+        date: Optional[datetime.datetime] = None,
         **kwargs,
     ):
         """
@@ -839,7 +839,7 @@ class Dolt(DoltT):
         add: bool = False,
         name: Optional[str] = None,
         url: Optional[str] = None,
-        remove: bool = None,
+        remove: bool = False,
         **kwargs,
     ):
         """
@@ -923,7 +923,7 @@ class Dolt(DoltT):
     def fetch(
         self,
         remote: str = "origin",
-        refspecs: Union[str, List[str]] = None,
+        refspecs: Optional[Union[str, List[str]]] = None,
         force: bool = False,
         **kwargs,
     ):
@@ -1320,9 +1320,9 @@ class Dolt(DoltT):
         dry_run: bool = False,
         keep_types: bool = False,
         file_type: Optional[str] = None,
-        pks: List[str] = None,
+        pks: Optional[List[str]] = None,
         map: Optional[str] = None,
-        float_threshold: float = None,
+        float_threshold: Optional[float] = None,
         delim: Optional[str] = None,
     ):
         """
@@ -1412,11 +1412,11 @@ class Dolt(DoltT):
         update_table: bool = False,
         force: bool = False,
         mapping_file: Optional[str] = None,
-        pk: List[str] = None,
+        pk: Optional[List[str]] = None,
         replace_table: bool = False,
         file_type: Optional[str] = None,
         continue_importing: bool = False,
-        delim: str = None,
+        delim: Optional[str] = None,
     ):
         """
         Import a table from a filename, inferring the schema from the file. Operates in two possible modes, update,
@@ -1473,7 +1473,7 @@ class Dolt(DoltT):
         force: bool = False,
         schema: Optional[str] = None,
         mapping_file: Optional[str] = None,
-        pk: List[str] = None,
+        pk: Optional[List[str]] = None,
         file_type: Optional[str] = None,
         continue_exporting: bool = False,
     ):
