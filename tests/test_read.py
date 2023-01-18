@@ -2,15 +2,7 @@ from typing import List
 
 import pytest
 
-from doltcli import (
-    CREATE,
-    UPDATE,
-    Dolt,
-    columns_to_rows,
-    read_columns,
-    read_rows,
-    write_rows,
-)
+from doltcli import CREATE, UPDATE, Dolt, columns_to_rows, read_columns, read_rows, write_rows
 from tests.helpers import compare_rows_helper
 
 TEST_TABLE = "characters"

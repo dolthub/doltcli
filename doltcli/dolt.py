@@ -289,9 +289,9 @@ class Dolt(DoltT):
 
     @property
     def working(self):
-        working = self.sql(
-            f"select @@{self.repo_name}_working as working", result_format="csv"
-        )[0].get("working", None)
+        working = self.sql(f"select @@{self.repo_name}_working as working", result_format="csv")[
+            0
+        ].get("working", None)
         if not working:
             raise ValueError("Working head not found")
         return working
@@ -471,9 +471,7 @@ class Dolt(DoltT):
 
         self.execute(args, **kwargs)
 
-    def merge(
-        self, branch: str, message: Optional[str] = None, squash: bool = False, **kwargs
-    ):
+    def merge(self, branch: str, message: Optional[str] = None, squash: bool = False, **kwargs):
         """
         Executes a merge operation. If conflicts result, the merge is aborted, as an interactive merge does not really
         make sense in a scripting environment, or at least we have not figured out how to model it in a way that does.
@@ -991,9 +989,7 @@ class Dolt(DoltT):
         return Dolt(clone_dir)
 
     @classmethod
-    def _get_clone_dir(
-        cls, new_dir: Optional[str] = None, remote_url: Optional[str] = None
-    ) -> str:
+    def _get_clone_dir(cls, new_dir: Optional[str] = None, remote_url: Optional[str] = None) -> str:
         """
         Takes either a new_dir to clone the
         """

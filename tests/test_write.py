@@ -2,14 +2,7 @@ import os
 
 import pytest
 
-from doltcli import (
-    CREATE,
-    DoltException,
-    read_rows,
-    write_columns,
-    write_file,
-    write_rows,
-)
+from doltcli import CREATE, DoltException, read_rows, write_columns, write_file, write_rows
 from tests.helpers import compare_rows_helper, write_dict_to_csv
 
 # Note that we use string values here as serializing via CSV does preserve type information in any meaningful way

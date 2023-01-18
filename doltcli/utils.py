@@ -239,9 +239,7 @@ def _import_helper(
             os.remove(fname)
 
 
-def _get_import_mode_and_flags(
-    dolt: DoltT, table: str, import_mode: Optional[str] = None
-) -> str:
+def _get_import_mode_and_flags(dolt: DoltT, table: str, import_mode: Optional[str] = None) -> str:
     import_modes = IMPORT_MODES_TO_FLAGS.keys()
     if import_mode and import_mode not in import_modes:
         raise ValueError(f"update_mode must be one of: {import_modes}")

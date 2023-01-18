@@ -18,9 +18,7 @@ def read_csv_to_dict(file):
 
 
 def compare_rows_helper(expected: List[dict], actual: List[dict]):
-    assert len(expected) == len(
-        actual
-    ), f"Unequal row counts: {len(expected)} != {len(actual)}"
+    assert len(expected) == len(actual), f"Unequal row counts: {len(expected)} != {len(actual)}"
     errors = []
     for k in expected[0].keys():
         if k.startswith("date"):
