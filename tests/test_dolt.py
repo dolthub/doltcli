@@ -561,7 +561,7 @@ def test_dolt_sql_csv(init_empty_test_repo: Dolt):
     dolt = init_empty_test_repo
     write_rows(dolt, "test_table", BASE_TEST_ROWS, commit=True)
     result = dolt.sql(
-        "SELECT `name` as name, `id` as id FROM test_table ", result_format="csv"
+        "SELECT `name` as name, `id` as id FROM test_table ORDER BY id", result_format="csv"
     )
     compare_rows_helper(BASE_TEST_ROWS, result)
 
