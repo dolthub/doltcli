@@ -42,7 +42,7 @@ def create_test_data(tmp_path) -> str:
 
 
 @pytest.fixture
-def create_test_table(init_empty_test_repo, create_test_data) -> Tuple[Dolt, str]:
+def create_test_table(init_empty_test_repo: Dolt, create_test_data: str) -> Tuple[Dolt, str]:
     repo, _ = init_empty_test_repo, create_test_data
     repo.sql(
         query="""
@@ -412,7 +412,7 @@ def test_ls(create_test_table: Tuple[Dolt, str]):
     assert [table.name for table in repo.ls()] == [test_table]
 
 
-def test_ls_empty(init_empty_test_repo):
+def test_ls_empty(init_empty_test_repo: Dolt):
     repo = init_empty_test_repo
     assert len(repo.ls()) == 0
 
@@ -465,7 +465,7 @@ rafa,2
 """.lstrip()
 
 
-def test_schema_import_create(init_empty_test_repo, tmp_path):
+def test_schema_import_create(init_empty_test_repo: Dolt, tmp_path):
     repo = init_empty_test_repo
     table = "test_table"
     test_file = tmp_path / "test_data.csv"
@@ -476,7 +476,7 @@ def test_schema_import_create(init_empty_test_repo, tmp_path):
     assert repo.status().added_tables == {table: False}
 
 
-def test_config_global(init_empty_test_repo):
+def test_config_global(init_empty_test_repo: Dolt):
     _ = init_empty_test_repo
     current_global_config = Dolt.config_global(list=True)
     test_username, test_email = "test_user", "test_email"
@@ -493,7 +493,7 @@ def test_config_global(init_empty_test_repo):
     assert reset_config["user.email"] == current_global_config["user.email"]
 
 
-def test_config_local(init_empty_test_repo):
+def test_config_local(init_empty_test_repo: Dolt):
     repo = init_empty_test_repo
     current_global_config = Dolt.config_global(list=True)
     test_username, test_email = "test_user", "test_email"
@@ -550,14 +550,14 @@ def test_clone_new_dir(tmp_path):
     assert db.head is not None
 
 
-def test_dolt_sql_csv(init_empty_test_repo):
+def test_dolt_sql_csv(init_empty_test_repo: Dolt):
     dolt = init_empty_test_repo
     write_rows(dolt, "test_table", BASE_TEST_ROWS, commit=True)
     result = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_format="csv")
     assert BASE_TEST_ROWS == result
 
 
-def test_dolt_sql_json(init_empty_test_repo):
+def test_dolt_sql_json(init_empty_test_repo: Dolt):
     dolt = init_empty_test_repo
     write_rows(dolt, "test_table", BASE_TEST_ROWS, commit=True)
     result = dolt.sql("SELECT `name` as name, `id` as id FROM test_table ", result_format="json")
@@ -567,7 +567,7 @@ def test_dolt_sql_json(init_empty_test_repo):
     compare_rows_helper(BASE_TEST_ROWS, result["rows"])
 
 
-def test_dolt_sql_file(init_empty_test_repo):
+def test_dolt_sql_file(init_empty_test_repo: Dolt):
     dolt = init_empty_test_repo
 
     with tempfile.NamedTemporaryFile() as f:
@@ -590,7 +590,7 @@ def test_dolt_sql_errors(doltdb):
         db.sql(result_format="csv", query=None)
 
 
-def test_no_init_error(init_empty_test_repo):
+def test_no_init_error(init_empty_test_repo: Dolt):
     dolt = init_empty_test_repo
 
     dolt.init(dolt.repo_dir, error=False)
@@ -612,7 +612,7 @@ def test_set_dolt_path_error(doltdb):
         set_dolt_path("dolt")
 
 
-def test_no_checkout_error(init_empty_test_repo):
+def test_no_checkout_error(init_empty_test_repo: Dolt):
     dolt = init_empty_test_repo
 
     dolt.checkout(branch="main", error=False)
