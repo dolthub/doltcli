@@ -38,7 +38,7 @@ class CommitT(BaseDataclass):
     parents: Optional[Union[List[str], str]]
     merge: bool = False
 
-    def add_merge_parent(self, parent: str) -> None:
+    def add_merge_parent(self, parent: str) -> None:  # pragma: no cover
         ...
 
 
@@ -89,20 +89,22 @@ class DoltT:
     print_output: bool = False
 
     @staticmethod
-    def init(repo_dir: Optional[str] = None) -> "DoltT":
+    def init(repo_dir: Optional[str] = None) -> "DoltT":  # pragma: no cover
         raise NotImplementedError()
 
-    def execute(self, args: List[str], print_output: Optional[bool] = None) -> str:
+    def execute(
+        self, args: List[str], print_output: Optional[bool] = None
+    ) -> str:  # pragma: no cover
         raise NotImplementedError()
 
-    def status(self) -> "StatusT":
+    def status(self) -> "StatusT":  # pragma: no cover
         raise NotImplementedError()
 
     @staticmethod
-    def version() -> str:
+    def version() -> str:  # pragma: no cover
         raise NotImplementedError()
 
-    def add(self, tables: Union[str, List[str]]) -> "StatusT":
+    def add(self, tables: Union[str, List[str]]) -> "StatusT":  # pragma: no cover
         raise NotImplementedError()
 
     def reset(
@@ -110,7 +112,7 @@ class DoltT:
         tables: Union[str, List[str]],
         hard: bool = False,
         soft: bool = False,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         raise NotImplementedError()
 
     def commit(
@@ -118,7 +120,7 @@ class DoltT:
         message: Optional[str] = ...,
         allow_empty: bool = False,
         date: Optional[datetime.datetime] = ...,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         raise NotImplementedError()
 
     def merge(
@@ -126,7 +128,7 @@ class DoltT:
         branch: str,
         message: Optional[str] = ...,
         squash: bool = False,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         raise NotImplementedError()
 
     def sql(
@@ -141,10 +143,12 @@ class DoltT:
         multi_db_dir: Optional[str] = None,
         result_file: Optional[str] = None,
         result_parser: Optional[Callable[[str], Any]] = None,
-    ) -> List:
+    ) -> List:  # pragma: no cover
         raise NotImplementedError()
 
-    def log(self, number: Optional[int] = None, commit: Optional[str] = None) -> Dict:
+    def log(
+        self, number: Optional[int] = None, commit: Optional[str] = None
+    ) -> Dict:  # pragma: no cover
         raise NotImplementedError()
 
     def diff(
@@ -158,10 +162,10 @@ class DoltT:
         sql: bool = False,
         where: Optional[str] = None,
         limit: Optional[int] = None,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         raise NotImplementedError()
 
-    def blame(self, table_name: str, rev: Optional[str] = None) -> None:
+    def blame(self, table_name: str, rev: Optional[str] = None) -> None:  # pragma: no cover
         raise NotImplementedError()
 
     def branch(
@@ -173,7 +177,7 @@ class DoltT:
         delete: bool = False,
         copy: bool = False,
         move: bool = False,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         raise NotImplementedError()
 
     def checkout(
@@ -182,7 +186,7 @@ class DoltT:
         tables: Optional[Union[str, List[str]]] = None,
         checkout_branch: bool = False,
         start_point: Optional[str] = None,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         raise NotImplementedError()
 
     def remote(
@@ -191,10 +195,10 @@ class DoltT:
         name: Optional[str] = None,
         url: Optional[str] = None,
         remove: bool = False,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         raise NotImplementedError()
 
-    def pull(self, remote: str = "origin") -> None:
+    def pull(self, remote: str = "origin") -> None:  # pragma: no cover
         raise NotImplementedError()
 
     def fetch(
@@ -203,7 +207,7 @@ class DoltT:
         refspecs: Optional[Union[str, List[str]]] = None,
         force: bool = False,
         **kwargs: Any,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         raise NotImplementedError()
 
     @staticmethod
@@ -212,8 +216,8 @@ class DoltT:
         new_dir: Optional[str] = None,
         remote: Optional[str] = None,
         branch: Optional[str] = None,
-    ) -> "DoltT":
+    ) -> "DoltT":  # pragma: no cover
         raise NotImplementedError()
 
-    def ls(self, system: bool = False, all: bool = False) -> List[TableT]:
+    def ls(self, system: bool = False, all: bool = False) -> List[TableT]:  # pragma: no cover
         raise NotImplementedError()
