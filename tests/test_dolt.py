@@ -75,7 +75,7 @@ def test_bad_repo_path(tmp_path):
         Dolt(bad_repo_path)
 
 
-def test_commit(create_test_table):
+def test_commit(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     repo.add(test_table)
     before_commit_count = len(repo.log())
@@ -83,7 +83,7 @@ def test_commit(create_test_table):
     assert repo.status().is_clean and len(repo.log()) == before_commit_count + 1
 
 
-def test_head(create_test_table):
+def test_head(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     assert list(repo.log().values())[0].ref == repo.head
 
@@ -94,12 +94,12 @@ def test_working(doltdb):
     assert db.head != db.working
 
 
-def test_active_branch(create_test_table):
+def test_active_branch(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     assert "main" == repo.active_branch
 
 
-def test_merge_fast_forward(create_test_table):
+def test_merge_fast_forward(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     message_one = "Base branch"
     message_two = "Other branch"
@@ -131,7 +131,7 @@ def test_merge_fast_forward(create_test_table):
     assert parent.message == message_one
 
 
-def test_merge_conflict(create_test_table):
+def test_merge_conflict(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     message_one = "Base branch"
     message_two = "Base branch new data"
@@ -165,7 +165,7 @@ def test_merge_conflict(create_test_table):
     assert head_of_main.message == message_two
 
 
-def test_dolt_log(create_test_table):
+def test_dolt_log(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     message_one = "Julianna, the very serious intellectual"
     message_two = "Added Stan the Man"
@@ -181,7 +181,7 @@ def test_dolt_log(create_test_table):
     assert previous_commit.message == message_one
 
 
-def test_dolt_log_scope(create_test_table):
+def test_dolt_log_scope(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     message_one = "Julianna, the very serious intellectual"
     message_two = "Added Stan the Man"
@@ -198,7 +198,7 @@ def test_dolt_log_scope(create_test_table):
     assert current_commit.message == message_one
 
 
-def test_dolt_log_number(create_test_table):
+def test_dolt_log_number(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     _ = "Julianna, the very serious intellectual"
     message_two = "Added Stan the Man"
@@ -215,12 +215,12 @@ def test_dolt_log_number(create_test_table):
     assert current_commit.message == message_two
 
 
-def test_dolt_single_commit_log(create_test_table):
+def test_dolt_single_commit_log(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     assert len(repo.log()) == 1
 
 
-def test_dolt_log_commit(create_test_table):
+def test_dolt_log_commit(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     _ = "Julianna, the very serious intellectual"
     message_two = "Added Stan the Man"
@@ -238,7 +238,7 @@ def test_dolt_log_commit(create_test_table):
     assert current_commit.message == message_two
 
 
-def test_dolt_log_merge_commit(create_test_table):
+def test_dolt_log_merge_commit(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     message_one = "Base branch"
     message_two = "Base branch new data"
@@ -275,7 +275,7 @@ def test_dolt_log_merge_commit(create_test_table):
     assert {first_merge_parent.ref, second_merge_parent.ref} == set(merge_commit.parents)
 
 
-def test_get_dirty_tables(create_test_table):
+def test_get_dirty_tables(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     message = "Committing test data"
 
@@ -339,13 +339,13 @@ def test_get_dirty_tables(create_test_table):
     assert status.modified_tables == expected_changes
 
 
-def test_checkout_with_tables(create_test_table):
+def test_checkout_with_tables(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     repo.checkout(tables=test_table)
     assert repo.status().is_clean
 
 
-def test_branch(create_test_table):
+def test_branch(create_test_table: Tuple[Dolt, str]):
     repo, _ = create_test_table
     active_branch, branches = repo.branch()
     assert [active_branch.name] == [branch.name for branch in branches] == ["main"]
@@ -364,7 +364,7 @@ def test_branch(create_test_table):
 
 
 # we want to make sure that we can delte a branch atomically
-def test_branch_delete(create_test_table):
+def test_branch_delete(create_test_table: Tuple[Dolt, str]):
     repo, _ = create_test_table
 
     _verify_branches(repo, ["main"])
@@ -377,7 +377,7 @@ def test_branch_delete(create_test_table):
     _verify_branches(repo, ["main"])
 
 
-def test_branch_move(create_test_table):
+def test_branch_move(create_test_table: Tuple[Dolt, str]):
     repo, _ = create_test_table
 
     _verify_branches(repo, ["main"])
@@ -391,7 +391,7 @@ def _verify_branches(repo: Dolt, branch_list: List[str]):
     assert set(branch.name for branch in branches) == set(branch for branch in branch_list)
 
 
-def test_remote_list(create_test_table):
+def test_remote_list(create_test_table: Tuple[Dolt, str]):
     repo, _ = create_test_table
     repo.remote(add=True, name="origin", url="blah-blah")
     assert repo.remote()[0].name == "origin"
@@ -407,7 +407,7 @@ def test_checkout_non_existent_branch(doltdb):
     repo.checkout("main")
 
 
-def test_ls(create_test_table):
+def test_ls(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     assert [table.name for table in repo.ls()] == [test_table]
 
@@ -417,7 +417,7 @@ def test_ls_empty(init_empty_test_repo):
     assert len(repo.ls()) == 0
 
 
-def test_sql(create_test_table):
+def test_sql(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     sql = """
         INSERT INTO {table} (name, id)
@@ -431,7 +431,7 @@ def test_sql(create_test_table):
     assert "Roger" in [x["name"] for x in test_data]
 
 
-def test_sql_json(create_test_table):
+def test_sql_json(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     result = repo.sql(
         query="SELECT * FROM `{table}`".format(table=test_table), result_format="json"
@@ -439,7 +439,7 @@ def test_sql_json(create_test_table):
     _verify_against_base_rows(result)
 
 
-def test_sql_csv(create_test_table):
+def test_sql_csv(create_test_table: Tuple[Dolt, str]):
     repo, test_table = create_test_table
     result = repo.sql(query="SELECT * FROM `{table}`".format(table=test_table), result_format="csv")
     _verify_against_base_rows(result)
