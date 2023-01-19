@@ -89,6 +89,7 @@ def test_head(create_test_table):
     assert list(repo.log().values())[0].ref == repo.head
 
 
+@pytest.mark.xfail(reason="Dolt cli bug with --result-format")
 def test_working(doltdb):
     db = Dolt(doltdb)
     assert db.head != db.working
