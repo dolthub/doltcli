@@ -31,8 +31,6 @@ jobs:
           sudo curl -L https://github.com/dolthub/dolt/releases/download/v0.52.0/install.sh | sudo bash
           dolt config --global --add user.email bojack@horseman.com
           dolt config --global --add user.name "Bojack Horseman"
-          dolt config --global --add metrics.host eventsapi.awsdev.ld-corp.com
-          dolt config --global --add metrics.port 443
           dolt version
           python -m pip install --upgrade pip
           python -m pip install pytest pytest-cov
