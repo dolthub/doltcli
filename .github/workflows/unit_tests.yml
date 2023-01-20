@@ -18,6 +18,7 @@ jobs:
       matrix:
         python-version: ['3.8', '3.9', '3.10']
         os: [ubuntu-latest]
+        dolt-version: ['v0.52.0', 'latest']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -28,11 +29,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          sudo curl -L https://github.com/dolthub/dolt/releases/download/v0.52.0/install.sh | sudo bash
+          sudo curl -L https://github.com/dolthub/dolt/releases/download/${{ matrix.dolt-version }}/install.sh | sudo bash
           dolt config --global --add user.email bojack@horseman.com
           dolt config --global --add user.name "Bojack Horseman"
           dolt version
           python -m pip install --upgrade pip
           python -m pip install pytest pytest-cov
       - name: Run tests
+        continue-on-error: ${{ matrix.dolt-version }} == 'latest'
         run: pytest -v tests --cov=doltcli --cov-report=term --cov-report xml
