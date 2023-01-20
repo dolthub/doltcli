@@ -18,7 +18,7 @@ jobs:
       matrix:
         python-version: ['3.8', '3.9', '3.10']
         os: [ubuntu-latest]
-        dolt-version: ['v0.52.0', 'latest']
+        dolt-version: ['v0.52.8']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -36,5 +36,4 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pytest pytest-cov
       - name: Run tests
-        continue-on-error: ${{ matrix.dolt-version }} == 'latest'
         run: pytest -v tests --cov=doltcli --cov-report=term --cov-report xml
