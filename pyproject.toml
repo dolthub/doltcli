@@ -1,5 +1,5 @@
 [project]
-name = "doltcli"
+name = "lumicks-doltcli"
 version = "0.1.17"
 license = {file = "LICENSE"}
 description = "Slim Python interface for Dolt's CLI API."
