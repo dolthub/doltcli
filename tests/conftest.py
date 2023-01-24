@@ -41,11 +41,6 @@ def get_repo_path_tmp_path(path: str, subpath: str = None) -> Tuple[str, str]:
 
 
 @pytest.fixture()
-def with_test_data_initial_file(tmp_path):
-    return _test_data_to_file(tmp_path, TEST_DATA_INITIAL)
-
-
-@pytest.fixture()
 def with_test_table(init_empty_test_repo):
     dolt = init_empty_test_repo
     dolt.sql(
@@ -54,7 +49,7 @@ def with_test_table(init_empty_test_repo):
             `name` VARCHAR(32),
             `adjective` VARCHAR(32),
             `id` INT NOT NULL,
-            `date_of_death` DATETIME, 
+            `date_of_death` DATETIME,
             PRIMARY KEY (`id`)
         );
     """
@@ -71,12 +66,12 @@ def doltdb():
         db = Dolt.init(db_path)
         db.sql("create table  t1 (a bigint primary key, b bigint, c bigint)")
         db.sql("insert into t1 values (1,1,1), (2,2,2)")
-        db.sql("select dolt_add('t1')")
-        db.sql("select dolt_commit('-m', 'initialize t1')")
+        db.add("t1")
+        db.commit("initialize t1")
 
         db.sql("insert into t1 values (3,3,3)")
-        db.sql("select dolt_add('t1')")
-        db.sql("select dolt_commit('-m', 'edit t1')")
+        db.add("t1")
+        db.commit("initialize edit t1")
         yield db_path
     finally:
         if os.path.exists(db_path):

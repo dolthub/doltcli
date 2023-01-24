@@ -1,0 +1,34 @@
+name: block_fixups
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  block_fixups:
+    name: block fixup! commits
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: block fixup! commits
+      run: |
+        LINE_NO=`grep -r -n "\"base\":" $GITHUB_EVENT_PATH | cut -d ":" -f 1`
+        REFS=`tail +$LINE_NO $GITHUB_EVENT_PATH | grep "\"ref\"" | cut -d ":" -f 2 | tr -d ',|"| '`
+        BASE=`echo $REFS | cut -d " " -f 1`
+        CURRENT=`echo $REFS | cut -d " " -f 2`
+        FIXUP_COUNT=`git log --pretty=format:%s origin/$BASE..origin/$CURRENT | grep fixup! | wc -l || echo 0`
+
+        echo "Merge $CURRENT into $BASE with $FIXUP_COUNT fixup! commits"
+        if [ "$FIXUP_COUNT" -gt 0 ]; then
+          git log --pretty=format:%s origin/$BASE..origin/$CURRENT | grep fixup!
+          exit 1
+        fi
+
+        REJ_COUNT=`git diff --name-only origin/$BASE origin/$CURRENT | grep .rej | wc -l || echo 0`
+        echo "Merge $CURRENT into $BASE with $REJ_COUNT .rej files"
+        if [ "$REJ_COUNT" -gt 0 ]; then
+          git diff --name-only origin/$BASE origin/$CURRENT | grep .rej
+          exit 1
+        fi

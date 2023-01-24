@@ -10,16 +10,7 @@ from subprocess import PIPE, Popen
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from .types import BranchT, CommitT, DoltT, KeyPairT, RemoteT, StatusT, TableT
-from .utils import (
-    read_columns,
-    read_columns_sql,
-    read_rows,
-    read_rows_sql,
-    to_list,
-    write_columns,
-    write_file,
-    write_rows,
-)
+from .utils import read_rows_sql, to_list
 
 global logger
 logger = logging.getLogger(__name__)
@@ -289,9 +280,9 @@ class Dolt(DoltT):
 
     @property
     def working(self):
-        working = self.sql(
-            f"select @@{self.repo_name}_working as working", result_format="csv"
-        )[0].get("working", None)
+        working = self.sql(f"select @@{self.repo_name}_working as working", result_format="csv")[
+            0
+        ].get("working", None)
         if not working:
             raise ValueError("Working head not found")
         return working
@@ -309,7 +300,7 @@ class Dolt(DoltT):
         self,
         args: List[str],
         print_output: Optional[bool] = None,
-        stdout_to_file: str = None,
+        stdout_to_file: Optional[str] = None,
         error: bool = True,
     ) -> str:
         """
@@ -447,7 +438,7 @@ class Dolt(DoltT):
         self,
         message: Optional[str] = None,
         allow_empty: bool = False,
-        date: datetime.datetime = None,
+        date: Optional[datetime.datetime] = None,
         **kwargs,
     ):
         """
@@ -471,9 +462,7 @@ class Dolt(DoltT):
 
         self.execute(args, **kwargs)
 
-    def merge(
-        self, branch: str, message: Optional[str] = None, squash: bool = False, **kwargs
-    ):
+    def merge(self, branch: str, message: Optional[str] = None, squash: bool = False, **kwargs):
         """
         Executes a merge operation. If conflicts result, the merge is aborted, as an interactive merge does not really
         make sense in a scripting environment, or at least we have not figured out how to model it in a way that does.
@@ -540,7 +529,7 @@ class Dolt(DoltT):
         result_file: Optional[str] = None,
         result_parser: Optional[Callable[[str], Any]] = None,
         **kwargs,
-    ):
+    ):  # noqa: C901
         """
         Execute a SQL query, using the options to dictate how it is executed, and where the output goes.
         :param query: query to be executed
@@ -554,6 +543,7 @@ class Dolt(DoltT):
         :param result_parser:
         :return:
         """
+
         args = ["sql"]
 
         if list_saved:
@@ -849,7 +839,7 @@ class Dolt(DoltT):
         add: bool = False,
         name: Optional[str] = None,
         url: Optional[str] = None,
-        remove: bool = None,
+        remove: bool = False,
         **kwargs,
     ):
         """
@@ -933,7 +923,7 @@ class Dolt(DoltT):
     def fetch(
         self,
         remote: str = "origin",
-        refspecs: Union[str, List[str]] = None,
+        refspecs: Optional[Union[str, List[str]]] = None,
         force: bool = False,
         **kwargs,
     ):
@@ -991,9 +981,7 @@ class Dolt(DoltT):
         return Dolt(clone_dir)
 
     @classmethod
-    def _get_clone_dir(
-        cls, new_dir: Optional[str] = None, remote_url: Optional[str] = None
-    ) -> str:
+    def _get_clone_dir(cls, new_dir: Optional[str] = None, remote_url: Optional[str] = None) -> str:
         """
         Takes either a new_dir to clone the
         """
@@ -1332,9 +1320,9 @@ class Dolt(DoltT):
         dry_run: bool = False,
         keep_types: bool = False,
         file_type: Optional[str] = None,
-        pks: List[str] = None,
+        pks: Optional[List[str]] = None,
         map: Optional[str] = None,
-        float_threshold: float = None,
+        float_threshold: Optional[float] = None,
         delim: Optional[str] = None,
     ):
         """
@@ -1424,11 +1412,11 @@ class Dolt(DoltT):
         update_table: bool = False,
         force: bool = False,
         mapping_file: Optional[str] = None,
-        pk: List[str] = None,
+        pk: Optional[List[str]] = None,
         replace_table: bool = False,
         file_type: Optional[str] = None,
         continue_importing: bool = False,
-        delim: str = None,
+        delim: Optional[str] = None,
     ):
         """
         Import a table from a filename, inferring the schema from the file. Operates in two possible modes, update,
@@ -1485,7 +1473,7 @@ class Dolt(DoltT):
         force: bool = False,
         schema: Optional[str] = None,
         mapping_file: Optional[str] = None,
-        pk: List[str] = None,
+        pk: Optional[List[str]] = None,
         file_type: Optional[str] = None,
         continue_exporting: bool = False,
     ):
