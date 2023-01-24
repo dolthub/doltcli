@@ -1,6 +1,6 @@
 [project]
 name = "lumicks-doltcli"
-version = "0.1.17"
+version = "0.1.18"
 license = {file = "LICENSE"}
 description = "Slim Python interface for Dolt's CLI API."
 authors = [

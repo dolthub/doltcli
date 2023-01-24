@@ -12,7 +12,7 @@ This document follows the conventions laid out in [Keep a CHANGELOG](https://kee
 [//]: # "3. Remove the unused sections from the new release."
 [//]: # "4. Update the comparison link for the unreleased header to the new tag."
 
-## [Unreleased](https://github.com/lumicks/doltcli/compare/fd79aa2bd0076dad5298f9414dff47af7d7068f5...HEAD)
+## [Unreleased](https://github.com/lumicks/doltcli/compare/v0.1.18...HEAD)
 
 [//]: # "When adding an entry please also add a link to the"
 [//]: # "corresponding pull request that introduce the change"
@@ -20,13 +20,12 @@ This document follows the conventions laid out in [Keep a CHANGELOG](https://kee
 
 ### Added
 [//]: # "For new features that got added"
-- Add `track` option to checkout command to checkout upstream branches.
-- Add optional `branch` argument to `pull` operation.
+- 
 
 ### Changed
 [//]: # "For behavior that has been changed"
 [//]: # "(should ideally result in a new semantic version if that scheme is being used)"
-- Changed the Github actions to our standard ones
+- 
 
 ### Deprecated
 [//]: # "For features for which it has been decided that they should be removed in the future"
@@ -45,4 +44,18 @@ This document follows the conventions laid out in [Keep a CHANGELOG](https://kee
 [//]: # "In case of security problems that have been discovered and end-users should fix"
 -
 
-## [v0.0.0](https://github.com/lumicks/{{project_name}}/releases/tag/v0.0.0) - 2023-01-01
+## [Unreleased](https://github.com/lumicks/doltcli/releases/tag/v0.1.18) - 2023-01-24
+
+[//]: # "When adding an entry please also add a link to the"
+[//]: # "corresponding pull request that introduce the change"
+
+
+### Added
+[//]: # "For new features that got added"
+- Add `track` option to checkout command to checkout upstream branches.
+- Add optional `branch` argument to `pull` operation.
+
+### Changed
+[//]: # "For behavior that has been changed"
+[//]: # "(should ideally result in a new semantic version if that scheme is being used)"
+- Changed the Github actions to our standard ones
