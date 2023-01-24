@@ -918,13 +918,18 @@ class Dolt(DoltT):
         # just print the output
         self.execute(args, **kwargs)
 
-    def pull(self, remote: str = "origin", **kwargs):
+    def pull(self, remote: str = "origin", branch: Optional[str] = None, **kwargs):
         """
         Pull the latest changes from the specified remote.
-        :param remote:
+        :param remote: The remote to pull the changes from
+        :param branch: The branch on the remote to pull the changes from
         :return:
         """
-        self.execute(["pull", remote], **kwargs)
+        args = ["pull", remote]
+        if branch is not None:
+            args.append(branch)
+
+        self.execute(args, **kwargs)
 
     def fetch(
         self,
