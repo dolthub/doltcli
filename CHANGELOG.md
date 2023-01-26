@@ -44,7 +44,7 @@ This document follows the conventions laid out in [Keep a CHANGELOG](https://kee
 [//]: # "In case of security problems that have been discovered and end-users should fix"
 -
 
-## [Unreleased](https://github.com/lumicks/doltcli/releases/tag/v0.1.18) - 2023-01-24
+## [v0.1.18](https://github.com/lumicks/doltcli/releases/tag/v0.1.18) - 2023-01-24
 
 [//]: # "When adding an entry please also add a link to the"
 [//]: # "corresponding pull request that introduce the change"
