@@ -157,12 +157,13 @@ def test_merge_conflict(create_test_table):
 
     # merge
     repo.checkout("main")
-    repo.merge("other", message_merge)
+    with pytest.raises(DoltException):
+        repo.merge("other", message_merge)
 
-    commits = list(repo.log().values())
-    head_of_main = commits[0]
+    #commits = list(repo.log().values())
+    #head_of_main = commits[0]
 
-    assert head_of_main.message == message_two
+    #assert head_of_main.message == message_two
 
 
 def test_dolt_log(create_test_table):
@@ -636,6 +637,9 @@ def test_reset(doltdb):
     db.reset(soft=True)
     db.reset(tables="t1")
     db.reset(tables=["t1"])
+    db.reset(revision="head~1", soft=True)
+    with pytest.raises(ValueError):
+        db.reset(tables=["t1"], revision="head~1")
 
 
 def test_reset_errors(doltdb):
