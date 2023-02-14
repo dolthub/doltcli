@@ -7,11 +7,12 @@ authors = ["Max Hoffman <max@dolthub.com>", "Oscar Batori <oscar@dolthub.com>"]
 [tool.poetry.dependencies]
 python = ">=3.6.2,<4.0"
 dataclasses = {version = ">=0.6", markers = "python_version < \"3.7\""}
+"typed-ast" = ">1.4.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
 black = "^21.10b0"
-mypy = "0.800"
+mypy = ">0.800"
 pytest-cov = "^2.11.1"
 isort = "^5.9.1"
 flake8 = "^3.9.2"

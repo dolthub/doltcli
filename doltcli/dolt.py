@@ -407,6 +407,7 @@ class Dolt(DoltT):
     def reset(
         self,
         tables: Union[str, List[str]] = [],
+        revision: str = "",
         hard: bool = False,
         soft: bool = False,
         **kwargs,
@@ -431,6 +432,12 @@ class Dolt(DoltT):
 
         if (hard or soft) and to_reset:
             raise ValueError("Specify either hard/soft flag, or tables to reset")
+
+        if to_reset and revision != "":
+            raise ValueError("Specify either revision or tables to reset")
+
+        if revision != "":
+            args.append(revision)
 
         if hard:
             args.append("--hard")
