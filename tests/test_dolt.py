@@ -562,7 +562,7 @@ def test_dolt_sql_csv(init_empty_test_repo):
     result = dolt.sql(
         "SELECT `name` as name, `id` as id FROM test_table ", result_format="csv"
     )
-    assert BASE_TEST_ROWS == result
+    compare_rows_helper(BASE_TEST_ROWS, result)
 
 
 def test_dolt_sql_json(init_empty_test_repo):
