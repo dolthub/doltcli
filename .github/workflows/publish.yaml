@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.8"]
 
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +22,6 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
       - uses: Gr1N/setup-poetry@v8
-      - uses: actions/cache@v1
       - name: Install poetry dependencies
         run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
