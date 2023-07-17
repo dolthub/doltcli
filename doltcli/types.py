@@ -26,6 +26,8 @@ class BranchT(BaseDataclass):
     latest_committer_email: Optional[str] = None
     latest_commit_date: Optional[datetime.datetime] = None
     latest_commit_message: Optional[str] = None
+    remote: Optional[str] = None
+    branch: Optional[str] = None
 
 
 @dataclass
