@@ -728,18 +728,35 @@ class Dolt(DoltT):
         delete: bool = False,
         copy: bool = False,
         move: bool = False,
+        remote: bool = False,
+        all: bool = False,
         **kwargs,
     ):
         """
-        Checkout, create, delete, move, or copy, a branch. Only
-        :param branch_name:
-        :param start_point:
-        :param new_branch:
-        :param force:
-        :param delete:
-        :param copy:
-        :param move:
-        :return:
+        List, create, or delete branches.
+
+        If 'branch_name' is None, existing branches are listed, including remotely tracked branches
+        if 'remote' or 'all' are set. If 'branch_name' is provided, a new branch is created, checked
+        our, deleted, moved or copied.
+
+        :param branch_name: Name of branch to Checkout, create, delete, move, or copy.
+        :param start_point: A commit that a new branch should point at.
+        :param new_branch: Name of branch to copy to or rename to if 'copy' or 'move' is set.
+        :param force: Reset 'branch_name' to 'start_point', even if 'branch_name' exists already.
+            Without 'force', dolt branch refuses to change an existing branch. In combination with
+            'delete', allow deleting the branch irrespective of its merged status. In
+            combination with 'move', allow renaming the branch even if the new branch name
+            already exists, the same applies for 'copy'.
+        :param delete: Delete a branch. The branch must be fully merged in its upstream branch.
+        :param copy: Create a copy of a branch.
+        :param move: Move/rename a branch. If 'new_branch' does not exist, 'branch_name' will be
+            renamed to 'new_branch'. If 'new_branch' exists, 'force' must be used to force the
+            rename to happen.
+        :param remote: When in list mode, show only remote tracked branches, unless 'all' is true.
+            When with -d, delete a remote tracking branch.
+        :param all: When in list mode, shows both local and remote tracked branches
+
+        :return: active_branch, branches
         """
         switch_count = [el for el in [delete, copy, move] if el]
         if len(switch_count) > 1:
@@ -750,7 +767,7 @@ class Dolt(DoltT):
                 raise ValueError(
                     "force is not valid without providing a new branch name, or copy, move, or delete being true"
                 )
-            return self._get_branches()
+            return self._get_branches(remote=remote, all=all)
 
         args = ["branch"]
         if force:
@@ -779,6 +796,8 @@ class Dolt(DoltT):
             if not branch_name:
                 raise ValueError("must provide branch_name when deleting")
             args.extend(["--delete", branch_name])
+            if remote:
+                args.append("--remote")
             return execute_wrapper(args)
 
         if move:
@@ -796,24 +815,47 @@ class Dolt(DoltT):
                 args.append(start_point)
             return execute_wrapper(args)
 
-        return self._get_branches()
+        return self._get_branches(remote=remote, all=all)
 
-    def _get_branches(self) -> Tuple[Branch, List[Branch]]:
-        dicts = read_rows_sql(self, sql="select * from dolt_branches")
-        branches = [Branch(**d) for d in dicts]
+    def _get_branches(self, remote: bool = False, all: bool = False) -> Tuple[Branch, List[Branch]]:
+        """
+        Gets the branches for this repository, optionally including remote branches, and optionally
+        including all.
+
+        :param remote: include remotely tracked branches. If all is false and remote is true, only
+            remotely track branches are returned. If all is true both local and remote are included.
+            Default is False
+        :param all: include both local and remotely tracked branches. Default is False
+        :return: active_branch, branches
+        """
+        local_dicts = read_rows_sql(self, sql="select * from dolt_branches")
+        remote_tracked = []
+        dicts = []
+        if remote or all:
+            remote_tracked = read_rows_sql(self, sql="select * from dolt_remote_branches")
+        if all:
+            dicts = local_dicts + remote_tracked
+        elif remote:
+            dicts = remote_tracked
+        else:
+            dicts = local_dicts
+
+        # find active_branch
         ab_dicts = read_rows_sql(
             self, "select * from dolt_branches where name = (select active_branch())"
         )
-
         if len(ab_dicts) != 1:
             raise ValueError(
                 "Ensure you have the latest version of Dolt installed, this is fixed as of 0.24.2"
             )
-
         active_branch = Branch(**ab_dicts[0])
-
         if not active_branch:
             raise DoltException("Failed to set active branch")
+
+        if remote and not all:
+            branches = [Branch(**d) for d in remote_tracked]
+        else:
+            branches = [Branch(**d) for d in dicts]
 
         return active_branch, branches
 
