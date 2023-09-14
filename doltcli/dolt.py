@@ -506,13 +506,15 @@ class Dolt(DoltT):
 
         args.append(branch)
         output = self.execute(args, **kwargs).split("\n")
-        merge_conflict_pos = 2
 
-        if len(output) == 3 and "Fast-forward" in output[1]:
+        # TODO: this was and remains a hack, we need to parse the output properly
+        if len(output) > 1 and "Fast-forward" in output[0]:
             logger.info(f"Completed fast-forward merge of {branch} into {current_branch.name}")
             return
 
-        if len(output) == 5 and output[merge_conflict_pos].startswith("CONFLICT"):
+        # TODO: this was and remains a hack, we need to parse the output properly
+        merge_conflict_pos = 8
+        if len(output) > 1 and output[merge_conflict_pos].startswith("CONFLICT"):
             logger.warning(
                 f"""
                 The following merge conflict occurred merging {branch} to {current_branch.name}:
@@ -529,10 +531,13 @@ class Dolt(DoltT):
         logger.info(message)
         status = self.status()
 
+        commit_required = False
         for table in list(status.added_tables.keys()) + list(status.modified_tables.keys()):
             self.add(table)
+            commit_required = True
 
-        self.commit(message)
+        if commit_required:
+            self.commit(message)
 
     def sql(
         self,
@@ -1238,7 +1243,6 @@ class Dolt(DoltT):
         get: bool = False,
         unset: bool = False,
     ) -> Dict[str, str]:
-
         switch_count = [el for el in [add, list, get, unset] if el]
         if len(switch_count) != 1:
             raise ValueError("Exactly one of add, list, get, unset must be True")
