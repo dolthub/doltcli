@@ -532,15 +532,6 @@ class Dolt(DoltT):
         if message is None:
             message = f"Merged {current_branch.name} into {branch}"
         logger.info(message)
-        status = self.status()
-
-        commit_required = False
-        for table in list(status.added_tables.keys()) + list(status.modified_tables.keys()):
-            self.add(table)
-            commit_required = True
-
-        if commit_required:
-            self.commit(message)
 
     def sql(
         self,
