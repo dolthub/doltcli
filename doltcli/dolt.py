@@ -484,9 +484,11 @@ class Dolt(DoltT):
         """
         Executes a merge operation. If conflicts result, the merge is aborted, as an interactive merge does not really
         make sense in a scripting environment, or at least we have not figured out how to model it in a way that does.
-        :param branch:
-        :param message:
-        :param squash:
+        :param branch: name of the branch to merge into the current branch
+        :param message: message to be used for the merge commit only in the case of an automatic
+            merge. In case of automatic merge without a message provided, the commit message will be
+            "Merge branch '<branch>' into '<current_branch>'"
+        :param squash: squash the commits from the merged branch into a single commit
         :return:
         """
         current_branch, branches = self._get_branches()
@@ -503,7 +505,8 @@ class Dolt(DoltT):
 
         if squash:
             args.append("--squash")
-
+        if message:
+            args.extend(["--message", message])
         args.append(branch)
         output = self.execute(args, **kwargs).split("\n")
 
