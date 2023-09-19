@@ -24,7 +24,7 @@ questions regarding production use-cases.
 
 - clone repo
 - Python 3.6+ required
-- [Install Dolt binary](https://docs.dolthub.com/getting-started/installation). Currently recommended version is [1.15.0](https://github.com/dolthub/dolt/releases/tag/v1.15.0).
+- [Install Dolt binary](https://docs.dolthub.com/getting-started/installation). Currently recommended version is [1.16.0](https://github.com/dolthub/dolt/releases/tag/v1.16.0).
 - [Install Poetry](https://python-poetry.org/docs/#installation)
 ```bash
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
