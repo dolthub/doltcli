@@ -184,10 +184,7 @@ def write_rows(
             for row in rows:
                 fieldnames = fieldnames.union(set(row.keys()))
 
-            # TODO: this is only needed to make sure test_update_rows passes until an issue
-            #       with dolt table import -u is addressed:
-            #       https://github.com/dolthub/dolt/issues/6675
-            csv_writer = csv.DictWriter(f, sorted(fieldnames))
+            csv_writer = csv.DictWriter(f, fieldnames)
             csv_writer.writeheader()
             csv_writer.writerows(rows)
         return filepath
