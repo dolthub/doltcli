@@ -62,6 +62,49 @@ def create_test_table(init_empty_test_repo: Dolt, create_test_data: str) -> Tupl
         _execute(["table", "rm", "test_players"], repo.repo_dir)
 
 
+@pytest.fixture
+def test_repo_with_two_remote_branches(
+    empty_test_repo_with_remote,
+) -> Tuple[Dolt, str, str, str]:
+    repo = empty_test_repo_with_remote
+    new_branch_name = "new_branch"
+    commit_message_main = "Added table"
+    commit_message_new_branch = "Added table"
+
+    # add table to main branch and push it to remote
+    table_name = "test_players"
+    repo.sql(
+        query=f"""
+        CREATE TABLE `{table_name}` (
+            `name` LONGTEXT NOT NULL COMMENT 'tag:0',
+            `id` BIGINT NOT NULL COMMENT 'tag:1',
+            PRIMARY KEY (`id`)
+        );
+    """
+    )
+    data = BASE_TEST_ROWS
+    write_rows(repo, table_name, data, UPDATE, commit=False)
+    repo.add(table_name)
+    repo.commit(commit_message_main)
+    repo.push("origin", "main", set_upstream=True)
+
+    # checkout new branch and add a player
+    repo.checkout(new_branch_name, checkout_branch=True)
+    repo.sql(f'INSERT INTO `{table_name}` (`name`, `id`) VALUES ("Juan Martin", 5)')
+    repo.add(table_name)
+    repo.commit(commit_message_new_branch)
+
+    # push new branch to remote and delete local branch
+    repo.push("origin", new_branch_name, set_upstream=True)
+    repo.checkout("main")
+    repo.branch(new_branch_name, delete=True, force=True)
+
+    # reset main to no commits
+    repo.reset(hard=True)
+
+    return repo, new_branch_name, commit_message_main, commit_message_new_branch
+
+
 def test_init(tmp_path):
     repo_path, repo_data_dir = get_repo_path_tmp_path(tmp_path)
     assert not os.path.exists(repo_data_dir)
@@ -404,6 +447,33 @@ def test_remote_list(create_test_table: Tuple[Dolt, str]):
         "origin",
         "another-origin",
     }
+
+
+def test_pull_from_main(test_repo_with_two_remote_branches):
+    repo, __, commit_message_main, __ = test_repo_with_two_remote_branches
+
+    # pull remote
+    repo.pull("origin")
+    commit_message_to_check = list(repo.log().values())[0].message
+
+    # verify that the commit message is the same as the one in main
+    assert commit_message_to_check == commit_message_main
+
+
+def test_pull_from_branch(test_repo_with_two_remote_branches):
+    (
+        repo,
+        new_branch_name,
+        __,
+        commit_message_new_branch,
+    ) = test_repo_with_two_remote_branches
+
+    # pull remote new_branch into current branch
+    repo.pull("origin", new_branch_name)
+    commit_message_to_check = list(repo.log().values())[0].message
+
+    # verify that the commit message is the same as the one we pushed to new_branch
+    assert commit_message_to_check == commit_message_new_branch
 
 
 def test_checkout_non_existent_branch(doltdb):

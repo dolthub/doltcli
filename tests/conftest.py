@@ -112,6 +112,16 @@ def init_empty_test_repo(tmpdir) -> Dolt:
 def init_other_empty_test_repo(tmpdir) -> Dolt:
     return _init_helper(tmpdir, "other")
 
+@pytest.fixture
+def tmpdir2(tmpdir):
+    return tmpdir.mkdir("tmpdir2")
+
+@pytest.fixture
+def empty_test_repo_with_remote(tmpdir, tmpdir2) -> Dolt:
+    repo = _init_helper(tmpdir)
+    repo.remote(add=True, name="origin", url=rf"file:///{tmpdir2}")
+    return repo
+
 
 def _init_helper(path: str, ext: str = None):
     repo_path, repo_data_dir = get_repo_path_tmp_path(path, ext)
