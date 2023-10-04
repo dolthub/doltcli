@@ -71,12 +71,12 @@ def doltdb():
         db = Dolt.init(db_path)
         db.sql("create table  t1 (a bigint primary key, b bigint, c bigint)")
         db.sql("insert into t1 values (1,1,1), (2,2,2)")
-        db.sql("call dolt_add('t1')")
-        db.sql("call dolt_commit('-m', 'initialize t1')")
+        db.add("t1")
+        db.commit("initialize t1")
 
         db.sql("insert into t1 values (3,3,3)")
-        db.sql("call dolt_add('t1')")
-        db.sql("call dolt_commit('-m', 'edit t1')")
+        db.add("t1")
+        db.commit("initialize edit t1")
         yield db_path
     finally:
         if os.path.exists(db_path):
@@ -111,6 +111,16 @@ def init_empty_test_repo(tmpdir) -> Dolt:
 @pytest.fixture
 def init_other_empty_test_repo(tmpdir) -> Dolt:
     return _init_helper(tmpdir, "other")
+
+@pytest.fixture
+def tmpdir2(tmpdir):
+    return tmpdir.mkdir("tmpdir2")
+
+@pytest.fixture
+def empty_test_repo_with_remote(tmpdir, tmpdir2) -> Dolt:
+    repo = _init_helper(tmpdir)
+    repo.remote(add=True, name="origin", url=rf"file:///{tmpdir2}")
+    return repo
 
 
 def _init_helper(path: str, ext: str = None):
