@@ -476,6 +476,51 @@ def test_pull_from_branch(test_repo_with_two_remote_branches):
     assert commit_message_to_check == commit_message_new_branch
 
 
+def test_get_branches_local(test_repo_with_two_remote_branches):
+    (
+        repo,
+        __,
+        __,
+        __,
+    ) = test_repo_with_two_remote_branches
+
+    _, local = repo._get_branches()
+
+    assert len(local) == 1
+    assert local[0].name == "main"
+
+
+def test_get_branches_remote(test_repo_with_two_remote_branches):
+    (
+        repo,
+        new_branch_name,
+        __,
+        __,
+    ) = test_repo_with_two_remote_branches
+
+    _, remote = repo._get_branches(remote=True)
+
+    assert len(remote) == 2
+    assert remote[0].name == "remotes/origin/main"
+    assert remote[1].name == f"remotes/origin/{new_branch_name}"
+
+
+def test_get_branches_all(test_repo_with_two_remote_branches):
+    (
+        repo,
+        new_branch_name,
+        __,
+        __,
+    ) = test_repo_with_two_remote_branches
+
+    _, all = repo._get_branches(all=True)
+
+    assert len(all) == 3
+    assert all[0].name == "main"
+    assert all[1].name == "remotes/origin/main"
+    assert all[2].name == f"remotes/origin/{new_branch_name}"
+
+
 def test_checkout_non_existent_branch(doltdb):
     repo = Dolt(doltdb)
     repo.checkout("main")
