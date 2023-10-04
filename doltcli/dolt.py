@@ -829,14 +829,11 @@ class Dolt(DoltT):
         :return: active_branch, branches
         """
         local_dicts = read_rows_sql(self, sql="select * from dolt_branches")
-        remote_tracked = []
         dicts = []
-        if remote or all:
-            remote_tracked = read_rows_sql(self, sql="select * from dolt_remote_branches")
         if all:
-            dicts = local_dicts + remote_tracked
+            dicts = local_dicts + read_rows_sql(self, sql="select * from dolt_remote_branches")
         elif remote:
-            dicts = remote_tracked
+            dicts = read_rows_sql(self, sql="select * from dolt_remote_branches")
         else:
             dicts = local_dicts
 
@@ -852,10 +849,7 @@ class Dolt(DoltT):
         if not active_branch:
             raise DoltException("Failed to set active branch")
 
-        if remote and not all:
-            branches = [Branch(**d) for d in remote_tracked]
-        else:
-            branches = [Branch(**d) for d in dicts]
+        branches = [Branch(**d) for d in dicts]
 
         return active_branch, branches
 
