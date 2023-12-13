@@ -1345,7 +1345,7 @@ class Dolt(DoltT):
                 if not line:
                     pass
                 split = line.lstrip().split()
-                tables.append(Table(name=split[0], row_cnt=int(split[1])))
+                tables.append(Table(name=split[0], row_cnt=int(split[len(split)-1])))
 
         if system_pos:
             for line in output[system_pos:]:
