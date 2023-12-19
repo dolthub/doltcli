@@ -267,6 +267,8 @@ class Dolt(DoltT):
     """
 
     def __init__(self, repo_dir: str, print_output: Optional[bool] = None):
+        # allow ~ to be used in paths
+        repo_dir = os.path.expanduser(repo_dir)
         self.repo_dir = repo_dir
         self._print_output = print_output or False
 
