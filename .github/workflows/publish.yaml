@@ -50,7 +50,6 @@ jobs:
           prerelease: false
       - name: Build
         run: |
-          poetry config http-basic.pypi $USERNAME $PASSWORD
           poetry build
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
