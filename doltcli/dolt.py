@@ -1368,7 +1368,7 @@ class Dolt(DoltT):
         args = ["schema", "export", table]
 
         if filename:
-            args.extend(["--filename", filename])
+            args.extend([filename])
             _execute(args, self.repo_dir)
             return True
         else:
