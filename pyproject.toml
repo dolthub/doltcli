@@ -1,3 +1,6 @@
+[project]
+readme = "README.md"
+
 [tool.poetry]
 name = "doltcli"
 version = "0.2.2"
