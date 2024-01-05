@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "doltcli"
-version = "0.2.1"
+version = "0.2.2"
 description = "Slim Python interface for Dolt's CLI API."
 authors = ["Max Hoffman <max@dolthub.com>", "Oscar Batori <oscar@dolthub.com>"]
 
