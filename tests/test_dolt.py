@@ -111,6 +111,16 @@ def test_init(tmp_path):
     Dolt.init(repo_path)
     assert os.path.exists(repo_data_dir)
     shutil.rmtree(repo_data_dir)
+    
+def test_home_path():
+    path = "~/.dolt_test"
+    os.mkdir(path)
+
+    repo_path, repo_data_dir = get_repo_path_tmp_path("path")
+    assert not os.path.exists(repo_data_dir)
+    Dolt.init(repo_path)
+    assert os.path.exists(repo_data_dir)
+    shutil.rmtree(repo_data_dir)
 
 
 def test_bad_repo_path(tmp_path):
